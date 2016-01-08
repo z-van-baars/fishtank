@@ -3,6 +3,8 @@ import random
 import math
 import statistics
 import organism
+import goblin
+import ogre
 import utilities
 import colors
 
@@ -102,14 +104,14 @@ class Room1(Room):
         for ogre in self.ogres:
             ogre.age += 1
             ogre.ticks_without_food += 1
-            if ogre.age > 1000:
+            if ogre.age > 5000:
                 self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
-                self.ogre_death_ages.append(1000)
+                self.ogre_death_ages.append(5000)
                 self.ogres.remove(ogre)
                 self.movingsprites.remove(ogre)
                 self.age_deaths += 1
                 utilities.log("An Ogre died of old age")
-            elif ogre.ticks_without_food > 700:
+            elif ogre.ticks_without_food > 800:
                 self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
                 self.ogre_death_ages.append(ogre.age)
                 self.ogres.remove(ogre)
@@ -118,9 +120,9 @@ class Room1(Room):
                 utilities.log("An Ogre died of starvation")
             else:
                 ogre.pick_target(self)
-                ogre.chase(self)
+                ogre.do_thing(self)
                 ogre.move(self.wall_list, self.goblins, self.ogres)
-                if ogre.goblins_eaten > 49:
+                if ogre.goblins_eaten > 39:
                     ogre.reproduce(self)
                 self.movingsprites.add(ogre)
 
@@ -222,14 +224,14 @@ def main():
                 if event.key == pygame.K_RETURN:
                     coordin = spawn_org()
                     genome = gen_goblin_genes()
-                    new_goblin = organism.Goblin(coordin[0], coordin[1], genome)
+                    new_goblin = goblin.Goblin(coordin[0], coordin[1], genome)
                     current_room.goblins.add(new_goblin)
                     go = True
 
                 elif event.key == pygame.K_o:
                     coordin = spawn_org()
                     genome = gen_ogre_genes()
-                    new_ogre = organism.Ogre(coordin[0], coordin[1], genome)
+                    new_ogre = ogre.Ogre(coordin[0], coordin[1], genome)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
                     go = True
@@ -255,18 +257,32 @@ def main():
         clock.tick(60)
         time += 1
 
-    current_room.average_death_age = statistics.mean(current_room.death_ages)
-    current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
-    current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
-    current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
-    print("Average age of Goblins at death: %d" % current_room.average_death_age)
-    print("Average lifetime coins collected: %d" % current_room.coins_on_death_average)
-    print("Starvation Deaths: %d") % current_room.starvation_deaths
-    print("Age Deaths: %d" % current_room.age_deaths)
-    print("Deaths by Ogre: %d" % current_room.deaths_by_ogre)
+    if current_room.death_ages:
+        current_room.average_death_age = statistics.mean(current_room.death_ages)
+    else:
+        current_room.average_death_age = 0
+    if current_room.coins_on_death:
+        current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
+    else:
+        current_room.coins_on_death_average = 0
+    if current_room.ogre_death_ages:
+        current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
+    else:
+        current_room.ogre_average_death_age = 0
+    if current_room.goblins_eaten_on_death:
+        current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
+    else:
+        current_room.ogre_average_goblins_eaten = 0
+    
+    print("\n" * 5)
+    print("Average age of Goblins at death: %s" % str(current_room.average_death_age))
+    print("Average lifetime coins collected: %s" % str(current_room.coins_on_death_average))
+    print("Starvation Deaths: %s" % str(current_room.starvation_deaths))
+    print("Age Deaths: %s" % str(current_room.age_deaths))
+    print("Deaths by Ogre: %s" % str(current_room.deaths_by_ogre))
     print("-")
-    print("Average age of Ogres at death: %d" % current_room.ogre_average_death_age)
-    print("Average number of Goblins eaten: %d" % current_room.ogre_average_goblins_eaten)
+    print("Average age of Ogres at death: %s" % str(current_room.ogre_average_death_age))
+    print("Average number of Goblins eaten: %s" % str(current_room.ogre_average_goblins_eaten))
 
     pygame.quit()
 
