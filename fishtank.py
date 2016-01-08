@@ -40,6 +40,8 @@ class Wall(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        self.species = "Wall"
+
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -51,6 +53,7 @@ class Coin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.species = "Coin"
 
     def __lt__(self, other):
         if self.rect.x < other.rect.x:
@@ -77,6 +80,7 @@ class Organism(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.species = None
 
     def changespeed(self, x, y):
         self.change_x += x
@@ -86,12 +90,17 @@ class Organism(pygame.sprite.Sprite):
         raise NotImplementedError()
 
     def move(self, walls, goblins, ogres):
-        # X checks
 
+        block_hit_list = []
+        goblin_hit_list = []
+        ogre_hit_list = []
+        # X checks
         self.rect.x += self.change_x
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
-        goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
-        ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
+        if self.species == "Goblin":
+            goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
+        if self.species == "Ogre":
+            ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
 
         hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
         for hit_list in hit_lists:
@@ -105,8 +114,10 @@ class Organism(pygame.sprite.Sprite):
         self.rect.y += self.change_y
 
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
-        goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
-        ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
+        if self.species == "Goblin":
+            goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
+        if self.species == "Ogre":
+            ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
 
         hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
         for hit_list in hit_lists:
@@ -154,7 +165,10 @@ class Ogre(Organism):
         self.rect.x = x
         self.rect.y = y
         self.target_goblin = None
-        self.speed = 1
+        self.speed = 3
+        self.goblins_eaten = 0
+        self.lifetime_goblins_eaten = 0
+        self.species = "Ogre"
 
     def do_thing(self, current_room):
         self.chase(current_room)
@@ -185,6 +199,16 @@ class Ogre(Organism):
             self.change_y = self.speed
         elif prey_y < self.rect.y:
             self.change_y = -self.speed
+        goblin_hit_list = []
+        goblin_hit_list = pygame.sprite.spritecollide(self, current_room.goblins, True)
+        for goblin in goblin_hit_list:
+            current_room.goblins.remove(goblin)
+            self.goblins_eaten += 1
+            self.lifetime_goblins_eaten += 1
+            self.ticks_without_food = 0
+            current_room.deaths_by_ogre += 1
+            current_room.coins_on_death.append(goblin.lifetime_coins)
+            current_room.death_ages.append(goblin.age)
 
 
 class Goblin(Organism):
@@ -199,6 +223,7 @@ class Goblin(Organism):
         self.coins_collected = 0
         self.lifetime_coins = 0
         self.target_coin = None
+        self.species = "Goblin"
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -206,13 +231,15 @@ class Goblin(Organism):
         safety_left = center_x - 100
         safety_right = center_x + 100
         safety_bottom = center_y + 100
-        safety_top = center_y + 700
-        predator_x_pos = current_room.ogre.rect.x + 10
-        predator_y_pos = current_room.ogre.rect.y + 10
+        safety_top = center_y - 100
+        for ogre in current_room.ogres:
 
-        if predator_x_pos < safety_right or predator_x_pos > safety_left:
-            if predator_y_pos > safety_top or predator_y_pos < safety_bottom:
-                self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
+            predator_x_pos = ogre.rect.x + 10
+            predator_y_pos = ogre.rect.y + 10
+
+            if predator_x_pos < safety_right and predator_x_pos > safety_left:
+                if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
+                    self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
 
@@ -228,7 +255,7 @@ class Goblin(Organism):
 
     def do_thing(self, current_room):
         self.eat(current_room)
-        # self.safety(current_room)
+        self.safety(current_room)
 
     def reproduce(self, current_room):
         self.coins_collected = 0
@@ -274,12 +301,21 @@ class Room():
     goblins = None
     ogres = None
     movingsprites = None
+    #goblins stats
     starvation_deaths = 0
     age_deaths = 0
+    deaths_by_ogre = 0
     death_ages = []
     average_death_age = 0
     coins_on_death = []
     coins_on_death_average = 0
+    #ogre stats
+    ogre_starvation_deaths = 0
+    ogre_old_age_deaths = 0
+    goblins_eaten_on_death = []
+    ogre_death_ages = []
+    ogre_average_death_age = 0
+    ogre_average_goblins_eaten = 0
 
     def __init__(self):
         self.wall_list = pygame.sprite.Group()
@@ -305,14 +341,31 @@ class Room1(Room):
             self.wall_list.add(wall)
 
     def update(self):
-        if len(self.coins_list) < 30:
-            self.spawn_coins(20)
+        if len(self.coins_list) < 60:
+            self.spawn_coins(30)
 
         for ogre in self.ogres:
-            ogre.pick_target(self)
-            ogre.chase(self)
-            ogre.move(self.wall_list, self.goblins, self.ogres)
-            self.movingsprites.add(ogre)
+            ogre.age += 1
+            ogre.ticks_without_food += 1
+            if ogre.age > 1000:
+                self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
+                self.ogre_death_ages.append(1000)
+                self.ogres.remove(ogre)
+                self.movingsprites.remove(ogre)
+                self.age_deaths += 1
+                log("An Ogre died of old age")
+            elif ogre.ticks_without_food > 500:
+                self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
+                self.ogre_death_ages.append(ogre.age)
+                self.ogres.remove(ogre)
+                self.movingsprites.remove(ogre)
+                self.ogre_starvation_deaths += 1
+                log("An Ogre died of starvation")
+            else:
+                ogre.pick_target(self)
+                ogre.chase(self)
+                ogre.move(self.wall_list, self.goblins, self.ogres)
+                self.movingsprites.add(ogre)
 
         for goblin in self.goblins:
             goblin.age += 1
@@ -324,7 +377,7 @@ class Room1(Room):
                 self.movingsprites.remove(goblin)
                 self.age_deaths += 1
                 log("a goblin died of old age")
-            elif goblin.ticks_without_food > 150:
+            elif goblin.ticks_without_food > 200:
                 self.coins_on_death.append(goblin.lifetime_coins)
                 self.death_ages.append(goblin.age)
                 self.goblins.remove(goblin)
@@ -337,7 +390,6 @@ class Room1(Room):
                 if goblin.coins_collected > 10:
                     goblin.reproduce(self)
                 self.movingsprites.add(goblin)
-
 
     def spawn_coins(self, num_coins):
         for coin in range(num_coins):
@@ -371,6 +423,8 @@ def main():
         goblin_counter = font.render(str(len(current_room.goblins)), False, black)
         starvation_counter = font.render(str(current_room.starvation_deaths), False, red)
         old_age_counter = font.render(str(current_room.age_deaths), False, red)
+        ogre_counter = font.render(str(len(current_room.ogres)), False, black)
+        ogre_meals_counter = font.render(str(current_room.deaths_by_ogre), False, black)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -393,7 +447,7 @@ def main():
                     go = True
 
                 elif event.key == pygame.K_SPACE:
-                    current_room.spawn_coins(50)
+                    current_room.spawn_coins(100)
 
         if go:
             current_room.update()
@@ -405,17 +459,24 @@ def main():
         screen.blit(goblin_counter, [1, 1])
         screen.blit(starvation_counter, [100, 1])
         screen.blit(old_age_counter, [200, 1])
+        screen.blit(ogre_counter, [500, 1])
+        screen.blit(ogre_meals_counter, [550, 1])
         pygame.display.flip()
         clock.tick(60)
 
     current_room.average_death_age = statistics.mean(current_room.death_ages)
     current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
-    print("Average age at death: %d" % current_room.average_death_age)
+    current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
+    current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
+    print("Average age of Goblins at death: %d" % current_room.average_death_age)
     print("Average lifetime coins collected: %d" % current_room.coins_on_death_average)
-    print("Starvation Deaths: ")
-    print(current_room.starvation_deaths)
-    print("Age Deaths: ")
-    print(current_room.age_deaths)
+    print("Starvation Deaths: %d") % current_room.starvation_deaths
+    print("Age Deaths: %d" % current_room.age_deaths)
+    print("Deaths by Ogre: %d" % current_room.deaths_by_ogre)
+    print("-")
+    print("Average age of Ogres at death: %d" % current_room.ogre_average_death_age)
+    print("Average number of Goblins eaten: %d" % current_room.ogre_average_goblins_eaten)
+
     pygame.quit()
 
 main()
