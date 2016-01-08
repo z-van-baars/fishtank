@@ -15,9 +15,12 @@ gold = (255, 187, 0)
 key = (255, 0, 128)
 
 logging_on = True
+
+
 def log(*args, **kwargs):
     if logging_on:
         print(*args, **kwargs)
+
 
 def distance(a, b, x, y):
     a1 = abs(a - x)
@@ -36,6 +39,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -56,12 +60,14 @@ class Coin(pygame.sprite.Sprite):
         else:
             return False
 
+
 def spawn_org():
     coords = []
     coords.append(random.randrange(21, 779))
     coords.append(random.randrange(21, 579))
 
     return coords
+
 
 class Organism(pygame.sprite.Sprite):
     change_x = 0
@@ -79,42 +85,37 @@ class Organism(pygame.sprite.Sprite):
     def do_thing(self):
         raise NotImplementedError()
 
-    def move(self, walls, goblins):
+    def move(self, walls, goblins, ogres):
+        # X checks
+
         self.rect.x += self.change_x
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
+        ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
 
-        # wall X detection
-        for block in block_hit_list:
-            if self.change_x > 0 and self.rect.right != block.rect.right:
-                self.rect.right = block.rect.left
-            elif self.change_x < 0 and self.rect.left != block.rect.left:
-                self.rect.left = block.rect.right
+        hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
+        for hit_list in hit_lists:
 
-        # goblin X detection
-        for goblin in goblin_hit_list:
-            if self.change_x > 0 and self.rect.right != goblin.rect.right:
-                self.rect.right = goblin.rect.left
-            elif self.change_x < 0 and self.rect.left != goblin.rect.left:
-                self.rect.left = goblin.rect.right
-
+            for item in hit_list:
+                if self.change_x > 0 and self.rect.right != item.rect.right:
+                    self.rect.right = item.rect.left
+                elif self.change_x < 0 and self.rect.left != item.rect.left:
+                    self.rect.left = item.rect.right
+        # Y checks
         self.rect.y += self.change_y
 
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
-        # block Y detection
-        for block in block_hit_list:
+        ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
 
-            if self.change_y > 0 and self.rect.bottom != block.rect.bottom:
-                self.rect.bottom = block.rect.top
-            elif self.change_y < 0 and self.rect.top != block.rect.top:
-                self.rect.top = block.rect.bottom
-        # goblin Y detection
-        for goblin in goblin_hit_list:
-            if self.change_y > 0 and self.rect.bottom != goblin.rect.bottom:
-                self.rect.bottom = goblin.rect.top
-            elif self.change_y < 0 and self.rect.top != goblin.rect.top:
-                self.rect.top = goblin.rect.bottom
+        hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
+        for hit_list in hit_lists:
+
+            for item in hit_list:
+                if self.change_y > 0 and self.rect.top != item.rect.top:
+                    self.rect.bottom = item.rect.top
+                elif self.change_y < 0 and self.rect.bottom != item.rect.bottom:
+                    self.rect.top = item.rect.bottom
 
     def pick_target(self, possible_targets):
         target_object = None
@@ -152,7 +153,7 @@ class Ogre(Organism):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        target_goblin = None
+        self.target_goblin = None
         self.speed = 1
 
     def do_thing(self, current_room):
@@ -271,7 +272,7 @@ class Room():
     wall_list = None
     coins_list = None
     goblins = None
-    ogre = None
+    ogres = None
     movingsprites = None
     starvation_deaths = 0
     age_deaths = 0
@@ -286,6 +287,7 @@ class Room():
         self.coins_list = pygame.sprite.Group()
         self.goblins = pygame.sprite.Group()
         self.movingsprites = pygame.sprite.Group()
+        self.ogres = pygame.sprite.Group()
 
 
 class Room1(Room):
@@ -306,10 +308,11 @@ class Room1(Room):
         if len(self.coins_list) < 30:
             self.spawn_coins(20)
 
-        self.ogre.pick_target(self)
-        self.ogre.chase(self)
-        self.ogre.move(self.wall_list, self.goblins)
-        self.movingsprites.add(self.ogre)
+        for ogre in self.ogres:
+            ogre.pick_target(self)
+            ogre.chase(self)
+            ogre.move(self.wall_list, self.goblins, self.ogres)
+            self.movingsprites.add(ogre)
 
         for goblin in self.goblins:
             goblin.age += 1
@@ -330,7 +333,7 @@ class Room1(Room):
                 log("a goblin died of starvation")
             else:
                 goblin.do_thing(self)
-                goblin.move(self.wall_list, self.goblins)
+                goblin.move(self.wall_list, self.goblins, self.ogres)
                 if goblin.coins_collected > 10:
                     goblin.reproduce(self)
                 self.movingsprites.add(goblin)
@@ -380,10 +383,13 @@ def main():
 
                     new_goblin = Goblin(coordin[0], coordin[1], genome)
                     current_room.goblins.add(new_goblin)
+                    go = True
 
+                elif event.key == pygame.K_o:
                     coordin = spawn_org()
-                    current_room.ogre = Ogre(coordin[0], coordin[1])
-                    current_room.ogre.pick_target(current_room)
+                    new_ogre = Ogre(coordin[0], coordin[1])
+                    new_ogre.pick_target(current_room)
+                    current_room.ogres.add(new_ogre)
                     go = True
 
                 elif event.key == pygame.K_SPACE:
