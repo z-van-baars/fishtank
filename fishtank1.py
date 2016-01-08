@@ -313,6 +313,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
 
+                    current_room.spawn_coins()
                     coordin = spawn_org()
                     genome = gen_goblin_genes()
                     new_goblin = Goblin(coordin[0], coordin[1], genome)
