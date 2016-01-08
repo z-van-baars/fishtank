@@ -11,9 +11,12 @@ blue_grey = (180, 210, 217)
 purple = (255, 0, 255)
 gold = (255, 187, 0)
 
-
 key = (255, 0, 128)
 
+logging_on = False
+def log(*args, **kwargs):
+    if logging_on:
+        print(*args, **kwargs)
 
 def distance(a, b, x, y):
     a1 = abs(a - x)
@@ -129,16 +132,16 @@ class Ogre(Organism):
             goblin_distances.append([dist, (goblin.rect.x, goblin.rect.y)])
 
         goblin_distances = sorted(goblin_distances)
-        print(goblin_distances[0])
+        log(goblin_distances[0])
         target_goblin = goblin_distances[0]
-        print(target_goblin)
+        log(target_goblin)
         target_goblin = target_goblin[1]
-        print(target_goblin)
+        log(target_goblin)
         self.target_goblin = target_goblin
 
     def chase(self, current_room):
 
-        print(self.target_goblin)
+        log(self.target_goblin)
         prey_x = self.target_goblin[0]
         prey_y = self.target_goblin[1]
 
@@ -180,7 +183,7 @@ class Goblin(Organism):
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
 
-        print("a goblin is in danger!")
+        log("a goblin is in danger!")
         if predator_x_pos < center_x:
             self.change_x = self.speed
         elif predator_x_pos > center_x:
@@ -291,12 +294,12 @@ class Room1(Room):
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.age_deaths += 1
-                print("a goblin died of old age")
+                log("a goblin died of old age")
             elif goblin.ticks_without_food > 150:
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.starvation_deaths += 1
-                print("a goblin died of starvation")
+                log("a goblin died of starvation")
             else:
                 goblin.do_thing(self)
                 goblin.move(self.wall_list, self.goblins)
@@ -377,10 +380,10 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-    print("Starvation Deaths: ")
-    print(current_room.starvation_deaths)
-    print("Age Deaths: ")
-    print(current_room.age_deaths)
+    log("Starvation Deaths: ")
+    log(current_room.starvation_deaths)
+    log("Age Deaths: ")
+    log(current_room.age_deaths)
     pygame.quit()
 
 main()
