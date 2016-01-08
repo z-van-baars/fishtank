@@ -133,24 +133,11 @@ class Ogre(Organism):
             goblin_distances.append([dist, (goblin.rect.x, goblin.rect.y)])
 
         goblin_distances = sorted(goblin_distances)
-<<<<<<< HEAD
         target_goblin = goblin_distances[0]
         target_goblin = target_goblin[1]
-=======
-        log(goblin_distances[0])
-        target_goblin = goblin_distances[0]
-        log(target_goblin)
-        target_goblin = target_goblin[1]
-        log(target_goblin)
->>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
         self.target_goblin = target_goblin
 
     def chase(self, current_room):
-
-<<<<<<< HEAD
-=======
-        log(self.target_goblin)
->>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
         prey_x = self.target_goblin[0]
         prey_y = self.target_goblin[1]
 
@@ -204,17 +191,29 @@ class Goblin(Organism):
             self.change_y = -self.speed
 
     def pick_target_coin(self, coins_list):
-        coin_distances = []
-        target_coin = []
+        target_coin = None
 
-        for coin in coins_list:
-            dist = distance(coin.rect.x, coin.rect.y, self.rect.x, self.rect.y)
-            coin_distances.append([dist, (coin.rect.x, coin.rect.y)])
+        def look_within_cutoff(cutoff):
+            for coin in coins_list:
+                if abs(coin.rect.x - self.rect.x) < cutoff and \
+                   abs(coin.rect.y - self.rect.y) < cutoff:
+                    dist = distance(coin.rect.x, coin.rect.y, self.rect.x, self.rect.y)
+                    yield (dist, (coin.rect.x, coin.rect.y))
 
-        coin_distances = sorted(coin_distances)
+        coin_distances = look_within_cutoff(32)
+        if coin_distances:  # not empty
+            coin_distances = sorted(coin_distances)
+            try:
+                target_coin = coin_distances[0]
+                target_coin = target_coin[1]
+            except IndexError:
+                pass
 
-        target_coin = coin_distances[0]
-        target_coin = target_coin[1]
+        # too far away, just pick one at random
+        if target_coin is None:
+            chosen_one = random.choice(list(coins_list))
+            target_coin = chosen_one.rect.x, chosen_one.rect.y
+
         return target_coin
 
     def do_thing(self, current_room):
@@ -402,7 +401,6 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-<<<<<<< HEAD
     current_room.average_death_age = statistics.mean(current_room.death_ages)
     current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
     print("Average age at death: %d" % current_room.average_death_age)
@@ -411,12 +409,6 @@ def main():
     print(current_room.starvation_deaths)
     print("Age Deaths: ")
     print(current_room.age_deaths)
-=======
-    log("Starvation Deaths: ")
-    log(current_room.starvation_deaths)
-    log("Age Deaths: ")
-    log(current_room.age_deaths)
->>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
     pygame.quit()
 
 main()
