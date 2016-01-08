@@ -195,7 +195,10 @@ class Goblin(Organism):
         current_room.goblins.add(new_goblin)
 
     def eat(self, current_room):
+<<<<<<< HEAD
 
+=======
+>>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
         target_x = self.target_coin[0]
         target_y = self.target_coin[1]
 

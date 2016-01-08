@@ -12,9 +12,12 @@ blue_grey = (180, 210, 217)
 purple = (255, 0, 255)
 gold = (255, 187, 0)
 
-
 key = (255, 0, 128)
 
+logging_on = False
+def log(*args, **kwargs):
+    if logging_on:
+        print(*args, **kwargs)
 
 def distance(a, b, x, y):
     a1 = abs(a - x)
@@ -130,12 +133,24 @@ class Ogre(Organism):
             goblin_distances.append([dist, (goblin.rect.x, goblin.rect.y)])
 
         goblin_distances = sorted(goblin_distances)
+<<<<<<< HEAD
         target_goblin = goblin_distances[0]
         target_goblin = target_goblin[1]
+=======
+        log(goblin_distances[0])
+        target_goblin = goblin_distances[0]
+        log(target_goblin)
+        target_goblin = target_goblin[1]
+        log(target_goblin)
+>>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
         self.target_goblin = target_goblin
 
     def chase(self, current_room):
 
+<<<<<<< HEAD
+=======
+        log(self.target_goblin)
+>>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
         prey_x = self.target_goblin[0]
         prey_y = self.target_goblin[1]
 
@@ -178,7 +193,7 @@ class Goblin(Organism):
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
 
-        print("a goblin is in danger!")
+        log("a goblin is in danger!")
         if predator_x_pos < center_x:
             self.change_x = self.speed
         elif predator_x_pos > center_x:
@@ -296,14 +311,14 @@ class Room1(Room):
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.age_deaths += 1
-                print("a goblin died of old age")
+                log("a goblin died of old age")
             elif goblin.ticks_without_food > 150:
                 self.coins_on_death.append(goblin.lifetime_coins)
                 self.death_ages.append(goblin.age)
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.starvation_deaths += 1
-                print("a goblin died of starvation")
+                log("a goblin died of starvation")
             else:
                 goblin.do_thing(self)
                 goblin.move(self.wall_list, self.goblins)
@@ -387,6 +402,7 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
+<<<<<<< HEAD
     current_room.average_death_age = statistics.mean(current_room.death_ages)
     current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
     print("Average age at death: %d" % current_room.average_death_age)
@@ -395,6 +411,12 @@ def main():
     print(current_room.starvation_deaths)
     print("Age Deaths: ")
     print(current_room.age_deaths)
+=======
+    log("Starvation Deaths: ")
+    log(current_room.starvation_deaths)
+    log("Age Deaths: ")
+    log(current_room.age_deaths)
+>>>>>>> 11253527a30dc58d247d99ddc0e37a102b18ed5b
     pygame.quit()
 
 main()
