@@ -43,6 +43,12 @@ class Organism(pygame.sprite.Sprite):
                     self.rect.right = item.rect.left
                 elif self.change_x < 0 and self.rect.left != item.rect.left:
                     self.rect.left = item.rect.right
+            # places creature back inside play area if it bugs out
+            if self.rect.left < 20:
+                self.rect.left = 20
+            if self.rect.right > 780:
+                self.rect.right = 780
+
         # Y checks
         self.rect.y += self.change_y
 
@@ -60,6 +66,10 @@ class Organism(pygame.sprite.Sprite):
                     self.rect.bottom = item.rect.top
                 elif self.change_y < 0 and self.rect.bottom != item.rect.bottom:
                     self.rect.top = item.rect.bottom
+            if self.rect.top < 20:
+                self.rect.top = 20
+            if self.rect.bottom > 580:
+                self.rect.bottom = 580
 
     def pick_target(self, possible_targets):
         target_object = None
