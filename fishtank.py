@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import statistics
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -129,16 +130,12 @@ class Ogre(Organism):
             goblin_distances.append([dist, (goblin.rect.x, goblin.rect.y)])
 
         goblin_distances = sorted(goblin_distances)
-        print(goblin_distances[0])
         target_goblin = goblin_distances[0]
-        print(target_goblin)
         target_goblin = target_goblin[1]
-        print(target_goblin)
         self.target_goblin = target_goblin
 
     def chase(self, current_room):
 
-        print(self.target_goblin)
         prey_x = self.target_goblin[0]
         prey_y = self.target_goblin[1]
 
@@ -162,6 +159,7 @@ class Goblin(Organism):
         self.rect.y = y
         self.speed = speed
         self.coins_collected = 0
+        self.lifetime_coins = 0
         self.target_coin = None
 
     def safety(self, current_room):
@@ -239,6 +237,7 @@ class Goblin(Organism):
         for coin in coin_hit_list:
             current_room.coins_list.remove(coin)
             self.coins_collected += 1
+            self.lifetime_coins += 1
             self.ticks_without_food = 0
             self.target_coin = self.pick_target_coin(current_room.coins_list)
             for goblin in current_room.goblins:
@@ -253,6 +252,10 @@ class Room():
     movingsprites = None
     starvation_deaths = 0
     age_deaths = 0
+    death_ages = []
+    average_death_age = 0
+    coins_on_death = []
+    coins_on_death_average = 0
 
     def __init__(self):
         self.wall_list = pygame.sprite.Group()
@@ -288,11 +291,15 @@ class Room1(Room):
             goblin.age += 1
             goblin.ticks_without_food += 1
             if goblin.age > 2000:
+                self.coins_on_death.append(goblin.lifetime_coins)
+                self.death_ages.append(2000)
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.age_deaths += 1
                 print("a goblin died of old age")
             elif goblin.ticks_without_food > 150:
+                self.coins_on_death.append(goblin.lifetime_coins)
+                self.death_ages.append(goblin.age)
                 self.goblins.remove(goblin)
                 self.movingsprites.remove(goblin)
                 self.starvation_deaths += 1
@@ -303,6 +310,7 @@ class Room1(Room):
                 if goblin.coins_collected > 10:
                     goblin.reproduce(self)
                 self.movingsprites.add(goblin)
+        
 
     def spawn_coins(self, num_coins):
         for coin in range(num_coins):
@@ -334,7 +342,9 @@ def main():
     go = False
     font = pygame.font.SysFont('Calibri', 18, True, False)
 
+
     while not done:
+
 
         goblin_counter = font.render(str(len(current_room.goblins)), False, black)
 
@@ -377,6 +387,10 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
+    current_room.average_death_age = statistics.mean(current_room.death_ages)
+    current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
+    print("Average age at death: %d" % current_room.average_death_age)
+    print("Average lifetime coins collected: %d" % current_room.coins_on_death_average)
     print("Starvation Deaths: ")
     print(current_room.starvation_deaths)
     print("Age Deaths: ")

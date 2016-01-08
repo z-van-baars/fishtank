@@ -128,9 +128,7 @@ class Ogre(Organism):
         goblin_distances = sorted(goblin_distances)
 
         target_goblin = goblin_distances[0]
-        print(target_goblin)
         target_goblin = target_goblin[1]
-        print(target_goblin)
         self.target_goblin = target_goblin
 
     def chase(self, current_room):
@@ -183,9 +181,7 @@ class Goblin(Organism):
         coin_distances = sorted(coin_distances)
 
         target_coin = coin_distances[0]
-        print(target_coin)
         target_coin = target_coin[1]
-        print(target_coin)
         return target_coin
 
     def do_thing(self, current_room):
@@ -200,9 +196,7 @@ class Goblin(Organism):
 
     def eat(self, current_room):
 
-        print(self.target_coin)
         target_x = self.target_coin[0]
-        print(target_x)
         target_y = self.target_coin[1]
 
         # x vector
