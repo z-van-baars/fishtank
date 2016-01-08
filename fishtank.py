@@ -48,6 +48,14 @@ class Coin(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+    def __lt__(self, other):
+        if self.rect.x < other.rect.x:
+            return True
+        elif self.rect.y < other.rect.y:
+            return True
+        else:
+            return False
+
 def spawn_org():
     coords = []
     coords.append(random.randrange(21, 779))
@@ -72,9 +80,7 @@ class Organism(pygame.sprite.Sprite):
         raise NotImplementedError()
 
     def move(self, walls, goblins):
-
         self.rect.x += self.change_x
-
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
 
@@ -84,6 +90,7 @@ class Organism(pygame.sprite.Sprite):
                 self.rect.right = block.rect.left
             elif self.change_x < 0 and self.rect.left != block.rect.left:
                 self.rect.left = block.rect.right
+
         # goblin X detection
         for goblin in goblin_hit_list:
             if self.change_x > 0 and self.rect.right != goblin.rect.right:
@@ -110,29 +117,31 @@ class Organism(pygame.sprite.Sprite):
                 self.rect.top = goblin.rect.bottom
 
     def pick_target(self, possible_targets):
-        target_coordinates = None
+        target_object = None
 
         def look_within_cutoff(cutoff):
             for target in possible_targets:
                 if abs(target.rect.x - self.rect.x) < cutoff and \
                    abs(target.rect.y - self.rect.y) < cutoff:
                     dist = distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                    yield (dist, (target.rect.x, target.rect.y))
+                    yield (dist, target)
 
-        distances = look_within_cutoff(8)
-        if distances:  # not empty
-            distances = sorted(distances)
-            try:
-                target_coordinates = distances[0][1]  # 0th (closest), then the 1th element (coord pair)
-            except IndexError:
-                pass
+        for cutoff in (8, 128):
+            distances = look_within_cutoff(cutoff)
+            if distances:  # not empty
+                distances = sorted(distances)
+                try:
+                    target_object = distances[0][1]  # 0th (shortest dist), then the 1th element (object itself)
+                    break
+                except IndexError:
+                    continue
 
         # too far away, just pick one at random
-        if target_coordinates is None:
-            chosen_one = random.choice(list(possible_targets))
-            target_coordinates = chosen_one.rect.x, chosen_one.rect.y
+        if target_object is None:
+            target_object = random.choice(list(possible_targets))
 
-        return target_coordinates
+        assert target_object is not None
+        return target_object
 
 
 class Ogre(Organism):
@@ -223,13 +232,15 @@ class Goblin(Organism):
     def reproduce(self, current_room):
         self.coins_collected = 0
         new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed)
-        new_goblin.target_coin = new_goblin.pick_target(current_room.coins_list)
         current_room.goblins.add(new_goblin)
 
     def eat(self, current_room):
+        if self.target_coin is None or \
+           self.target_coin not in current_room.coins_list:
+            self.target_coin = self.pick_target(current_room.coins_list)
 
-        target_x = self.target_coin[0]
-        target_y = self.target_coin[1]
+        target_x = self.target_coin.rect.x
+        target_y = self.target_coin.rect.y
 
         # x vector
         if (target_x + 2) > (self.rect.x + 7):
@@ -246,6 +257,7 @@ class Goblin(Organism):
             self.change_y = -self.speed
         else:
             self.change_y = 0
+
         coin_hit_list = []
         coin_hit_list = pygame.sprite.spritecollide(self, current_room.coins_list, True)
         for coin in coin_hit_list:
@@ -253,9 +265,6 @@ class Goblin(Organism):
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0
-            self.target_coin = self.pick_target(current_room.coins_list)
-            for goblin in current_room.goblins:
-                goblin.target_coin = goblin.pick_target(current_room.coins_list)
 
 
 class Room():
@@ -368,9 +377,8 @@ def main():
                 if event.key == pygame.K_RETURN:
                     coordin = spawn_org()
                     genome = gen_goblin_genes()
-                    new_goblin = Goblin(coordin[0], coordin[1], genome)
 
-                    new_goblin.target_coin = new_goblin.pick_target(current_room.coins_list)
+                    new_goblin = Goblin(coordin[0], coordin[1], genome)
                     current_room.goblins.add(new_goblin)
 
                     coordin = spawn_org()
@@ -385,7 +393,6 @@ def main():
             current_room.update()
 
         screen.fill(black)
-
         current_room.movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
         current_room.coins_list.draw(screen)
