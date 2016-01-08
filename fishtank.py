@@ -14,7 +14,7 @@ gold = (255, 187, 0)
 
 key = (255, 0, 128)
 
-logging_on = False
+logging_on = True
 def log(*args, **kwargs):
     if logging_on:
         print(*args, **kwargs)
@@ -384,6 +384,7 @@ def main():
                     current_room.ogre = Ogre(coordin[0], coordin[1])
                     current_room.ogre.pick_target(current_room)
                     go = True
+
                 elif event.key == pygame.K_SPACE:
                     current_room.spawn_coins(50)
 
