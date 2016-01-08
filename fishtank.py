@@ -174,9 +174,9 @@ class Goblin(Organism):
         predator_x_pos = current_room.ogre.rect.x + 10
         predator_y_pos = current_room.ogre.rect.y + 10
 
-        if predator_x_pos < safety_right and predator_x_pos > safety_left:
-            if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
-                self.run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos)
+        if predator_x_pos < safety_right or predator_x_pos > safety_left:
+            if predator_y_pos > safety_top or predator_y_pos < safety_bottom:
+                self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
 
@@ -206,7 +206,7 @@ class Goblin(Organism):
 
     def do_thing(self, current_room):
         self.eat(current_room)
-        self.safety(current_room)
+        # self.safety(current_room)
 
     def reproduce(self, current_room):
         self.coins_collected = 0
