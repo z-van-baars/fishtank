@@ -9,7 +9,8 @@ class Ogre(organism.Organism):
     change_y = 0
     age = 0
     ticks_without_food = 0
-    def __init__(self, x, y, speed, chunk, current_room):
+
+    def __init__(self, x, y, speed, current_room):
         organism.Organism.__init__(self)
         self.image = pygame.Surface([20, 20])
         self.image.fill(colors.red)
@@ -21,10 +22,15 @@ class Ogre(organism.Organism):
         self.goblins_eaten = 0
         self.lifetime_goblins_eaten = 0
         self.species = "Ogre"
-        self.current_chunk = chunk
+        self.current_chunk_row = None
+        self.current_chunk_column = None
         self.current_room = current_room
+        self.neighbors = []
 
     def do_thing(self, current_room):
+        if self.current_chunk_row is None or \
+           self.current_chunk_column is None:
+            utilities.place_in_chunk(self, current_room)
         if self.target_goblin:
             self.chase(current_room)
 

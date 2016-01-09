@@ -9,7 +9,8 @@ class Goblin(organism.Organism):
     change_y = 0
     age = 0
     ticks_without_food = 0
-    def __init__(self, x, y, speed, chunk, current_room):
+
+    def __init__(self, x, y, speed, current_room):
         organism.Organism.__init__(self)
         self.image = pygame.Surface([15, 15])
         self.image.fill(colors.green)
@@ -21,8 +22,10 @@ class Goblin(organism.Organism):
         self.lifetime_coins = 0
         self.target_coin = None
         self.species = "Goblin"
-        self.current_chunk = chunk
+        self.current_chunk_row = None
+        self.current_chunk_column = None
         self.current_room = current_room
+        self.neighbors = []
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -53,19 +56,23 @@ class Goblin(organism.Organism):
             self.change_y = -self.speed
 
     def do_thing(self, current_room):
+        if self.current_chunk_row is None or \
+           self.current_chunk_column is None:
+            utilities.place_in_chunk(self, current_room)
         self.eat(current_room)
         self.safety(current_room)
 
+
     def reproduce(self, current_room):
         self.coins_collected = 0
-        new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed, None, current_room)
-        new_goblin.current_chunk = utilities.place_in_chunk(new_goblin, current_room)
+        new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed, current_room)
+        utilities.place_in_chunk(new_goblin, current_room)
         current_room.goblins.add(new_goblin)
 
     def eat(self, current_room):
         if self.target_coin is None or \
            self.target_coin not in current_room.coins_list:
-            self.target_coin = self.pick_target(current_room.coins_list)
+            self.target_coin = self.pick_target(self.neighbors, self.current_chunk_row, self.current_chunk_column)
 
         target_x = self.target_coin.rect.x
         target_y = self.target_coin.rect.y

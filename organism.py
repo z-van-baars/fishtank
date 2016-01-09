@@ -7,7 +7,6 @@ import utilities
 
 class Organism(pygame.sprite.Sprite):
 
-
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.species = None
@@ -68,46 +67,46 @@ class Organism(pygame.sprite.Sprite):
             if self.rect.bottom > 580:
                 self.rect.bottom = 580
 
-        if self.current_chunk:
-            chunk = self.current_room.chunk_dict[self.current_chunk]
+        chunk = current_room.chunk_rows[self.current_chunk_row][self.current_chunk_column]
 
-        if self.current_chunk:
+        if self.rect.left < chunk.left:
             utilities.remove_from_chunk(self)
-            if self.rect.left < chunk.left:
-                utilities.place_in_chunk(self, current_room)
-            if self.rect.right > chunk.right:
-                utilities.place_in_chunk(self, current_room)
-            if self.rect.top < chunk.top:
-                utilities.place_in_chunk(self, current_room)
-            if self.rect.bottom > chunk.bottom:
-                utilities.place_in_chunk(self, current_room)
+            utilities.place_in_chunk(self, current_room)
+        if self.rect.right > chunk.right:
+            utilities.remove_from_chunk(self)
+            utilities.place_in_chunk(self, current_room)
+        if self.rect.top < chunk.top:
+            utilities.remove_from_chunk(self)
+            utilities.place_in_chunk(self, current_room)
+        if self.rect.bottom > chunk.bottom:
+            utilities.remove_from_chunk(self)
+            utilities.place_in_chunk(self, current_room)
 
-    def pick_target(self, possible_targets):
+
+
+    def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
         target_object = None
+        current_chunk = self.current_room.chunk_rows[current_chunk_row][current_chunk_column]
 
-        def look_within_cutoff(cutoff):
-            for target in possible_targets:
-                if abs(target.rect.x - self.rect.x) < cutoff and \
-                   abs(target.rect.y - self.rect.y) < cutoff:
-                    dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                    yield (dist, target)
+        def look_near_me(neighbors, current_chunk):
+            possible_targets = []
+            nearby_targets = []
+            for chunk in neighbors:
+                for target in chunk.coins_list:
+                    nearby_targets.append(target)
+            for target in nearby_targets:
 
-        for cutoff in (8, 128):
+                dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
+                possible_targets.append([dist, target])
             if possible_targets:
-                distances = look_within_cutoff(cutoff)
-            if distances:  # not empty
-                distances = sorted(distances)
-                try:
-                    target_object = distances[0][1]  # 0th (shortest dist), then the 1th element (object itself)
-                    break
-                except IndexError:
-                    continue
-        def look_near_me():
-            pass
+                possible_targets = sorted(possible_targets)
+                target_object = possible_targets[0]
+                return target_object
+        look_near_me(neighbors, current_chunk)
 
         # too far away, just pick one at random
         if target_object is None:
-            target_object = random.choice(list(possible_targets))
+            target_object = random.choice(list(self.current_room.coins_list))
 
         assert target_object is not None
         return target_object

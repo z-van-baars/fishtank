@@ -39,8 +39,10 @@ class Coin(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.species = "Coin"
-        self.current_chunk = None
+        self.current_chunk_row = None
+        self.current_chunk_column = None
         self.current_room = current_room
+        self.neighbors = None
 
     def __lt__(self, other):
         if self.rect.x < other.rect.x:
@@ -73,8 +75,7 @@ class Room():
     goblins = None
     ogres = None
     movingsprites = None
-    chunks = []
-    chunk_dict = {}
+    chunk_rows = []
     # goblins stats
     starvation_deaths = 0
     age_deaths = 0
@@ -116,28 +117,21 @@ class Room1(Room):
         self.create_chunks()
 
     def create_chunks(self):
-        chunk_coords = []
-        chunk_no = 0
+        chunk_row0 = [[20, 20],[115, 20],[210, 20],[305, 20],[400, 20],[495, 20],[590, 20],[685, 20]]
+        chunk_row1 = [[20, 100],[115, 100],[210, 100],[305, 100],[400, 100],[495, 100],[590, 100],[685, 100]]
+        chunk_row2 = [[20, 180],[115, 180],[210, 180],[305, 180],[400, 180],[495, 180],[590, 180],[685, 180]]
+        chunk_row3 = [[20, 260],[115, 260],[210, 260],[305, 260],[400, 260],[495, 260],[590, 260],[685, 260]]
+        chunk_row4 = [[20, 340],[115, 340],[210, 340],[305, 340],[400, 340],[495, 340],[590, 340],[685, 340]]
+        chunk_row5 = [[20, 420],[115, 420],[210, 420],[305, 420],[400, 420],[495, 420],[590, 420],[685, 420]]
+        chunk_row6 = [[20, 500],[115, 500],[210, 500],[305, 500],[400, 500],[495, 500],[590, 500],[685, 500]]
+        chunk_rows = [chunk_row0, chunk_row1, chunk_row2, chunk_row3, chunk_row4, chunk_row5, chunk_row6]
 
-        for y in range(7):
-            for x in range(8):
-                chunk_x = x
-                chunk_y = y
-
-                chunk_y *= 95
-                chunk_y += 20
-                chunk_x *= 80
-                chunk_x += 20
-
-                chunk_coords.append([chunk_y, chunk_x])
-
-        for chunk in chunk_coords:
-            new_chunk = Chunk(chunk[0], chunk[1])
-            self.chunks.append(new_chunk)
-
-        for chunk in self.chunks:
-            self.chunk_dict[chunk_no] = self.chunks[chunk_no]
-            chunk_no += 1
+        for row in range(len(chunk_rows)):
+            new_chunk_row = []
+            for item in range(len(chunk_rows[row])):
+                new_chunk = Chunk(chunk_rows[row][item][0], chunk_rows[row][item][1])
+                new_chunk_row.append(new_chunk)
+            self.chunk_rows.append(new_chunk_row)
 
     def update(self):
         if len(self.coins_list) < 60:
@@ -194,7 +188,9 @@ class Room1(Room):
 
     def spawn_coins(self, num_coins):
         for coin in range(num_coins):
-            coin = Coin(random.randrange(21, 779), random.randrange(21, 579), self)
+            coin_x = random.randrange(30, 770)
+            coin_y = random.randrange(30, 570)
+            coin = Coin(coin_x, coin_y, self)
             self.coins_list.add(coin)
             utilities.place_in_chunk(coin, self)
 
@@ -255,15 +251,16 @@ def main():
                 if event.key == pygame.K_RETURN:
                     coordin = utilities.spawn_org()
                     genome = utilities.gen_goblin_genes()
-                    new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, None, current_room)
+                    new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, current_room)
                     utilities.place_in_chunk(new_goblin, current_room)
+                    print(new_goblin.current_chunk_row, new_goblin.current_chunk_column)
                     current_room.goblins.add(new_goblin)
                     go = True
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
                     genome = utilities.gen_ogre_genes()
-                    new_ogre = ogre.Ogre(coordin[0], coordin[1], genome, None, current_room)
+                    new_ogre = ogre.Ogre(coordin[0], coordin[1], genome, current_room)
                     utilities.place_in_chunk(new_ogre, current_room)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
