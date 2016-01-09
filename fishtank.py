@@ -29,7 +29,7 @@ class Wall(pygame.sprite.Sprite):
 
 
 class Coin(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, current_room):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.Surface([5, 5])
@@ -39,6 +39,8 @@ class Coin(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.species = "Coin"
+        self.current_chunk = None
+        self.current_room = current_room
 
     def __lt__(self, other):
         if self.rect.x < other.rect.x:
@@ -161,7 +163,7 @@ class Room1(Room):
             else:
                 ogre.pick_target(self)
                 ogre.do_thing(self)
-                ogre.move(self.wall_list, self.goblins, self.ogres)
+                ogre.move(ogre.current_room)
                 if ogre.goblins_eaten > 39:
                     ogre.reproduce(self)
                 self.movingsprites.add(ogre)
@@ -185,18 +187,16 @@ class Room1(Room):
                 utilities.log("a goblin died of starvation")
             else:
                 goblin.do_thing(self)
-                goblin.move(self.wall_list, self.goblins, self.ogres)
+                goblin.move(goblin.current_room)
                 if goblin.coins_collected > 15:
                     goblin.reproduce(self)
                 self.movingsprites.add(goblin)
 
     def spawn_coins(self, num_coins):
         for coin in range(num_coins):
-            coin = Coin(random.randrange(21, 779), random.randrange(21, 579))
+            coin = Coin(random.randrange(21, 779), random.randrange(21, 579), self)
             self.coins_list.add(coin)
-            for chunk in self.chunk_dict:
-                if chunk.left < coin.self.rect.x < chunk.right and chunk.top < coin.self.rect.y < chunk.bottom:
-                    chunk.coins_list.add(coin)
+            utilities.place_in_chunk(coin, self)
 
 
 def graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
@@ -255,14 +255,16 @@ def main():
                 if event.key == pygame.K_RETURN:
                     coordin = utilities.spawn_org()
                     genome = utilities.gen_goblin_genes()
-                    new_goblin = goblin.Goblin(coordin[0], coordin[1], genome)
+                    new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, None, current_room)
+                    utilities.place_in_chunk(new_goblin, current_room)
                     current_room.goblins.add(new_goblin)
                     go = True
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
                     genome = utilities.gen_ogre_genes()
-                    new_ogre = ogre.Ogre(coordin[0], coordin[1], genome)
+                    new_ogre = ogre.Ogre(coordin[0], coordin[1], genome, None, current_room)
+                    utilities.place_in_chunk(new_ogre, current_room)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
                     go = True

@@ -5,7 +5,11 @@ import organism
 
 
 class Ogre(organism.Organism):
-    def __init__(self, x, y, speed):
+    change_x = 0
+    change_y = 0
+    age = 0
+    ticks_without_food = 0
+    def __init__(self, x, y, speed, chunk, current_room):
         organism.Organism.__init__(self)
         self.image = pygame.Surface([20, 20])
         self.image.fill(colors.red)
@@ -17,6 +21,8 @@ class Ogre(organism.Organism):
         self.goblins_eaten = 0
         self.lifetime_goblins_eaten = 0
         self.species = "Ogre"
+        self.current_chunk = chunk
+        self.current_room = current_room
 
     def do_thing(self, current_room):
         if self.target_goblin:

@@ -6,10 +6,7 @@ import utilities
 
 
 class Organism(pygame.sprite.Sprite):
-    change_x = 0
-    change_y = 0
-    age = 0
-    ticks_without_food = 0
+
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -22,18 +19,18 @@ class Organism(pygame.sprite.Sprite):
     def do_thing(self):
         raise NotImplementedError()
 
-    def move(self, walls, goblins, ogres):
+    def move(self, current_room):
 
         block_hit_list = []
         goblin_hit_list = []
         ogre_hit_list = []
         # X checks
         self.rect.x += self.change_x
-        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+        block_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
         if self.species == "Goblin":
-            goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
+            goblin_hit_list = pygame.sprite.spritecollide(self, current_room.goblins, False)
         if self.species == "Ogre":
-            ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
+            ogre_hit_list = pygame.sprite.spritecollide(self, current_room.ogres, False)
 
         hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
         for hit_list in hit_lists:
@@ -52,11 +49,11 @@ class Organism(pygame.sprite.Sprite):
         # Y checks
         self.rect.y += self.change_y
 
-        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+        block_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
         if self.species == "Goblin":
-            goblin_hit_list = pygame.sprite.spritecollide(self, goblins, False)
+            goblin_hit_list = pygame.sprite.spritecollide(self, current_room.goblins, False)
         if self.species == "Ogre":
-            ogre_hit_list = pygame.sprite.spritecollide(self, ogres, False)
+            ogre_hit_list = pygame.sprite.spritecollide(self, current_room.ogres, False)
 
         hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
         for hit_list in hit_lists:
@@ -70,6 +67,10 @@ class Organism(pygame.sprite.Sprite):
                 self.rect.top = 20
             if self.rect.bottom > 580:
                 self.rect.bottom = 580
+
+        if self.current_chunk:
+            utilities.remove_from_chunk(self)
+        utilities.place_in_chunk(self, current_room)
 
     def pick_target(self, possible_targets):
         target_object = None

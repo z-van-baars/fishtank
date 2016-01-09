@@ -5,7 +5,11 @@ import organism
 
 
 class Goblin(organism.Organism):
-    def __init__(self, x, y, speed):
+    change_x = 0
+    change_y = 0
+    age = 0
+    ticks_without_food = 0
+    def __init__(self, x, y, speed, chunk, current_room):
         organism.Organism.__init__(self)
         self.image = pygame.Surface([15, 15])
         self.image.fill(colors.green)
@@ -17,6 +21,8 @@ class Goblin(organism.Organism):
         self.lifetime_coins = 0
         self.target_coin = None
         self.species = "Goblin"
+        self.current_chunk = chunk
+        self.current_room = current_room
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -52,7 +58,8 @@ class Goblin(organism.Organism):
 
     def reproduce(self, current_room):
         self.coins_collected = 0
-        new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed)
+        new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed, None, current_room)
+        new_goblin.current_chunk = utilities.place_in_chunk(new_goblin, current_room)
         current_room.goblins.add(new_goblin)
 
     def eat(self, current_room):
@@ -83,6 +90,7 @@ class Goblin(organism.Organism):
         coin_hit_list = pygame.sprite.spritecollide(self, current_room.coins_list, True)
         for coin in coin_hit_list:
             current_room.coins_list.remove(coin)
+            utilities.remove_from_chunk(coin)
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0
