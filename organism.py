@@ -86,12 +86,9 @@ class Organism(pygame.sprite.Sprite):
             utilities.remove_from_chunk(self)
             utilities.place_in_chunk(self, current_room)
 
-
-
     def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
         target_object = None
         current_chunk = self.current_room.chunk_rows[current_chunk_row][current_chunk_column]
-
 
         def look_near_me(neighbors, current_chunk):
             possible_targets = []

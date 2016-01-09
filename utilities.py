@@ -58,7 +58,8 @@ def place_in_chunk(self, current_room):
                         self.current_chunk_row = row
                         self.current_chunk_column = column
 
-    self.neighbors = get_valid_neighbors(self, self.current_chunk_row, self.current_chunk_column)
+    self.neighbors = (get_valid_neighbors(self, self.current_chunk_row,
+                                          self.current_chunk_column))
 
 
 def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
@@ -66,31 +67,39 @@ def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
         neighbors = []
 
         if current_chunk_row > 0:
-            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column]) # top center
+            neighbors.append(chunks[current_chunk_row - 1]
+                                   [current_chunk_column])  # top center
             if current_chunk_column > 0:
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1]) # top left
-
+                neighbors.append(chunks[current_chunk_row - 1]
+                                       [current_chunk_column - 1])  # top left
             elif current_chunk_column < 6:
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1]) # top right
+                neighbors.append(chunks[current_chunk_row - 1]
+                                       [current_chunk_column + 1])  # top right
 
         if current_chunk_row < 6:
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column]) # bottom center
-
+            neighbors.append(chunks[current_chunk_row + 1]
+                                   [current_chunk_column])  # bottom center
             if current_chunk_column > 0:
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1]) # bottom left
-
+                neighbors.append(chunks[current_chunk_row + 1]
+                                       [current_chunk_column - 1])  # bottom left
             if current_chunk_column < 6:
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1]) # bottom right
+                neighbors.append(chunks[current_chunk_row + 1]
+                                       [current_chunk_column + 1])  # bottom right
+
         if current_chunk_column < 7:
-            neighbors.append(chunks[current_chunk_row][current_chunk_column + 1]) # right
+            neighbors.append(chunks[current_chunk_row]
+                                   [current_chunk_column + 1])  # right
+
         if current_chunk_column > 0:
-            neighbors.append(chunks[current_chunk_row][current_chunk_column - 1]) # left
+            neighbors.append(chunks[current_chunk_row]
+                                   [current_chunk_column - 1])  # left
 
         return neighbors
 
 
 def remove_from_chunk(self):
-    chunk = self.current_room.chunk_rows[self.current_chunk_row][self.current_chunk_column]
+    chunk = (self.current_room.chunk_rows[self.current_chunk_row]
+                                         [self.current_chunk_column])
     species = self.species
     if species == "Coin":
         chunk.coins_list.remove(self)
