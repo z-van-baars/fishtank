@@ -92,21 +92,26 @@ class Organism(pygame.sprite.Sprite):
         target_object = None
         current_chunk = self.current_room.chunk_rows[current_chunk_row][current_chunk_column]
 
+
         def look_near_me(neighbors, current_chunk):
             possible_targets = []
             nearby_targets = []
-            for chunk in neighbors:
-                for target in chunk.coins_list:
-                    nearby_targets.append(target)
-            for target in nearby_targets:
-
-                dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                possible_targets.append([dist, target])
+            if current_chunk.coins_list:
+                nearby_targets = current_chunk.coins_list
+            else:
+                for chunk in neighbors:
+                    for target in chunk.coins_list:
+                        nearby_targets.append(target)
+            if nearby_targets:
+                for target in nearby_targets:
+                    dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
+                    possible_targets.append([dist, target])
             if possible_targets:
                 possible_targets = sorted(possible_targets)
-                target_object = possible_targets[0]
+                target_object = possible_targets[0][1]
                 return target_object
-        look_near_me(neighbors, current_chunk)
+
+        target_object = look_near_me(neighbors, current_chunk)
 
         # too far away, just pick one at random
         if target_object is None:
