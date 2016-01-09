@@ -18,6 +18,16 @@ class Organism(pygame.sprite.Sprite):
     def do_thing(self):
         raise NotImplementedError()
 
+    def check_bound(self, current_room):
+        if self.rect.left < 20:
+            self.rect.left = 20
+        if self.rect.right > 780:
+            self.rect.right = 780
+        if self.rect.top < 20:
+            self.rect.top = 20
+        if self.rect.bottom > 580:
+            self.rect.bottom = 580
+
     def move(self, current_room):
 
         block_hit_list = []
@@ -40,10 +50,7 @@ class Organism(pygame.sprite.Sprite):
                 elif self.change_x < 0 and self.rect.left != item.rect.left:
                     self.rect.left = item.rect.right
             # places creature back inside play area if it bugs out
-            if self.rect.left < 20:
-                self.rect.left = 20
-            if self.rect.right > 780:
-                self.rect.right = 780
+        self.check_bound(current_room)
 
         # Y checks
         self.rect.y += self.change_y
@@ -62,10 +69,7 @@ class Organism(pygame.sprite.Sprite):
                     self.rect.bottom = item.rect.top
                 elif self.change_y < 0 and self.rect.bottom != item.rect.bottom:
                     self.rect.top = item.rect.bottom
-            if self.rect.top < 20:
-                self.rect.top = 20
-            if self.rect.bottom > 580:
-                self.rect.bottom = 580
+        self.check_bound(current_room)
 
         chunk = current_room.chunk_rows[self.current_chunk_row][self.current_chunk_column]
 

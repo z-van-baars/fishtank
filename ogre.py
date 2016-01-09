@@ -78,5 +78,6 @@ class Ogre(organism.Organism):
 
     def reproduce(self, current_room):
         self.goblins_eaten = 0
-        new_ogre = Ogre((self.rect.x + 22), self.rect.y, self.speed)
+        new_ogre = Ogre((self.rect.x + 22), self.rect.y, self.speed, current_room)
+        new_ogre.check_bound(current_room)
         current_room.ogres.add(new_ogre)

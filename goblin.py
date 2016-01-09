@@ -66,6 +66,7 @@ class Goblin(organism.Organism):
     def reproduce(self, current_room):
         self.coins_collected = 0
         new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed, current_room)
+        new_goblin.check_bound(current_room)
         utilities.place_in_chunk(new_goblin, current_room)
         current_room.goblins.add(new_goblin)
 
@@ -101,4 +102,3 @@ class Goblin(organism.Organism):
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0
-

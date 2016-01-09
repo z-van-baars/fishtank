@@ -65,7 +65,6 @@ def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
         chunks = self.current_room.chunk_rows
         neighbors = []
 
-
         if current_chunk_row > 0:
             neighbors.append(chunks[current_chunk_row - 1][current_chunk_column]) # top center
             if current_chunk_column > 0:

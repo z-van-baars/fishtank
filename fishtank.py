@@ -253,7 +253,6 @@ def main():
                     genome = utilities.gen_goblin_genes()
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, current_room)
                     utilities.place_in_chunk(new_goblin, current_room)
-                    print(new_goblin.current_chunk_row, new_goblin.current_chunk_column)
                     current_room.goblins.add(new_goblin)
                     go = True
 
