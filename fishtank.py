@@ -9,6 +9,11 @@ import utilities
 import colors
 
 
+# To Do
+# =====
+# - Speed up coin searching / target selection
+# - Switch to vectors rather than X Y values
+
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color):
         pygame.sprite.Sprite.__init__(self)
@@ -44,12 +49,20 @@ class Coin(pygame.sprite.Sprite):
             return False
 
 
-def spawn_org():
-    coords = []
-    coords.append(random.randrange(21, 779))
-    coords.append(random.randrange(21, 579))
+class Chunk():
 
-    return coords
+    def __init__(self, x_pos, y_pos):
+        self.top_left_x = x_pos
+        self.top_left_y = y_pos
+        self.width = 95
+        self.height = 80
+        self.left = self.top_left_x
+        self.right = self.top_left_x + self.width
+        self.top = self.top_left_y
+        self.bottom = self.top_left_y + self.height
+        self.coins_list = pygame.sprite.Group()
+        self.goblins_list = pygame.sprite.Group()
+        self.ogres_list = pygame.sprite.Group()
 
 
 class Room():
@@ -58,6 +71,8 @@ class Room():
     goblins = None
     ogres = None
     movingsprites = None
+    chunks = []
+    chunk_dict = {}
     # goblins stats
     starvation_deaths = 0
     age_deaths = 0
@@ -96,6 +111,31 @@ class Room1(Room):
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
+        self.create_chunks()
+
+    def create_chunks(self):
+        chunk_coords = []
+        chunk_no = 0
+
+        for y in range(7):
+            for x in range(8):
+                chunk_x = x
+                chunk_y = y
+
+                chunk_y *= 95
+                chunk_y += 20
+                chunk_x *= 80
+                chunk_x += 20
+
+                chunk_coords.append([chunk_y, chunk_x])
+
+        for chunk in chunk_coords:
+            new_chunk = Chunk(chunk[0], chunk[1])
+            self.chunks.append(new_chunk)
+
+        for chunk in self.chunks:
+            self.chunk_dict[chunk_no] = self.chunks[chunk_no]
+            chunk_no += 1
 
     def update(self):
         if len(self.coins_list) < 60:
@@ -154,18 +194,9 @@ class Room1(Room):
         for coin in range(num_coins):
             coin = Coin(random.randrange(21, 779), random.randrange(21, 579))
             self.coins_list.add(coin)
-
-
-def gen_goblin_genes():
-        genome = []
-        genome.append(random.randrange(2, 3))
-        return 2
-
-
-def gen_ogre_genes():
-    genome = []
-    genome.append(random.randrange(3, 5))
-    return 3
+            for chunk in self.chunk_dict:
+                if chunk.left < coin.self.rect.x < chunk.right and chunk.top < coin.self.rect.y < chunk.bottom:
+                    chunk.coins_list.add(coin)
 
 
 def graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
@@ -222,15 +253,15 @@ def main():
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    coordin = spawn_org()
-                    genome = gen_goblin_genes()
+                    coordin = utilities.spawn_org()
+                    genome = utilities.gen_goblin_genes()
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], genome)
                     current_room.goblins.add(new_goblin)
                     go = True
 
                 elif event.key == pygame.K_o:
-                    coordin = spawn_org()
-                    genome = gen_ogre_genes()
+                    coordin = utilities.spawn_org()
+                    genome = utilities.gen_ogre_genes()
                     new_ogre = ogre.Ogre(coordin[0], coordin[1], genome)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
@@ -273,7 +304,7 @@ def main():
         current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
     else:
         current_room.ogre_average_goblins_eaten = 0
-    
+
     print("\n" * 5)
     print("Average age of Goblins at death: %s" % str(current_room.average_death_age))
     print("Average lifetime coins collected: %s" % str(current_room.coins_on_death_average))
