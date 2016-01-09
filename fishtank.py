@@ -58,10 +58,10 @@ class Chunk():
         self.top_left_y = y_pos
         self.width = 95
         self.height = 80
-        self.left = self.top_left_x
-        self.right = self.top_left_x + self.width
-        self.top = self.top_left_y
-        self.bottom = self.top_left_y + self.height
+        self.left = x_pos
+        self.right = x_pos + 95
+        self.top = y_pos
+        self.bottom = y_pos + 80
         self.coins_list = pygame.sprite.Group()
         self.goblins_list = pygame.sprite.Group()
         self.ogres_list = pygame.sprite.Group()

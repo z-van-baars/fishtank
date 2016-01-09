@@ -69,8 +69,18 @@ class Organism(pygame.sprite.Sprite):
                 self.rect.bottom = 580
 
         if self.current_chunk:
+            chunk = self.current_room.chunk_dict[self.current_chunk]
+
+        if self.current_chunk:
             utilities.remove_from_chunk(self)
-        utilities.place_in_chunk(self, current_room)
+            if self.rect.left < chunk.left:
+                utilities.place_in_chunk(self, current_room)
+            if self.rect.right > chunk.right:
+                utilities.place_in_chunk(self, current_room)
+            if self.rect.top < chunk.top:
+                utilities.place_in_chunk(self, current_room)
+            if self.rect.bottom > chunk.bottom:
+                utilities.place_in_chunk(self, current_room)
 
     def pick_target(self, possible_targets):
         target_object = None
@@ -92,6 +102,8 @@ class Organism(pygame.sprite.Sprite):
                     break
                 except IndexError:
                     continue
+        def look_near_me():
+            pass
 
         # too far away, just pick one at random
         if target_object is None:

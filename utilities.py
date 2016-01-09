@@ -42,18 +42,29 @@ def place_in_chunk(self, current_room):
 
     for chunk in current_room.chunk_dict:
         this_chunk = current_room.chunk_dict[chunk]
-        if this_chunk.left <= self.rect.x < this_chunk.right and this_chunk.top <= self.rect.y < this_chunk.bottom:
-            if self.species == "Coin":
-                current_room.chunk_dict[chunk].coins_list.add(self)
-                self.current_chunk = chunk
-            elif self.species == "Goblin":
-                current_room.chunk_dict[chunk].goblins_list.add(self)
-                self.current_chunk = chunk
-            elif self.species == "Ogre":
-                current_room.chunk_dict[chunk].ogres_list.add(self)
-                self.current_chunk = chunk
-        else:
-            print("something wasn't properly chunked!")
+        if this_chunk.left <= self.rect.x and self.rect.x < this_chunk.right:
+            if this_chunk.top <= self.rect.y and self.rect.y < this_chunk.bottom:
+                if self.species == "Coin":
+                    this_chunk.coins_list.add(self)
+                    self.current_chunk = chunk
+                elif self.species == "Goblin":
+                    this_chunk.goblins_list.add(self)
+                    self.current_chunk = chunk
+                elif self.species == "Ogre":
+                    this_chunk.ogres_list.add(self)
+                    self.current_chunk = chunk
+    if not self.current_chunk:
+        self.current_chunk = 55
+        if self.species == "Coin":
+            current_room.chunk_dict[55].coins_list.add(self)
+
+        elif self.species == "Goblin":
+            current_room.chunk_dict[55].goblins_list.add(self)
+        elif self.species == "Ogre":
+            current_room.chunk_dict[55].ogres_list.add(self)
+    if not self.current_chunk:
+        print("something still isn't properly chunked!")
+
 
 
 def remove_from_chunk(self):
