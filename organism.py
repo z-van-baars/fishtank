@@ -29,7 +29,6 @@ class Organism(pygame.sprite.Sprite):
             self.rect.bottom = 580
 
     def move(self, current_room, current_chunk):
-
         block_hit_list = []
         goblin_hit_list = []
         ogre_hit_list = []
@@ -43,22 +42,20 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, False))
                 goblin_hit_list = goblin_hit_list + neighbor_hit_list
-            goblin_hit_list.remove(self)
         if self.species == "Ogre":
             ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
-            # ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
 
         for hit_list in hit_lists:
             for item in hit_list:
-                if self.change_x > 0:
+                if self.change_x > 0 and item != self:
                     self.rect.right = item.rect.left
-                elif self.change_x < 0:
+                elif self.change_x < 0 and item != self:
                     self.rect.left = item.rect.right
             # places creature back inside play area if it bugs out
         self.check_bound(current_room)
@@ -81,22 +78,21 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, False))
                 goblin_hit_list = goblin_hit_list + neighbor_hit_list
-            goblin_hit_list.remove(self)
         if self.species == "Ogre":
             ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
-            # ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
         for hit_list in hit_lists:
 
             for item in hit_list:
-                if self.change_y > 0:
+
+                if self.change_y > 0 and item != self:
                     self.rect.bottom = item.rect.top
-                elif self.change_y < 0:
+                elif self.change_y < 0 and item != self:
                     self.rect.top = item.rect.bottom
 
         self.check_bound(current_room)
