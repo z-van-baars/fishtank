@@ -46,7 +46,7 @@ class Ogre(organism.Organism):
                 utilities.place_in_chunk(self, self.current_room)
             if self.target_goblin:
                 self.chase(self.current_room)
-            self.move(current_room, self.current_chunk)
+            self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
                 self.reproduce(self.current_room)
             self.current_room.movingsprites.add(self)

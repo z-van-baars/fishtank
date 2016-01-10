@@ -49,7 +49,7 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
-            ogre_hit_list.remove(self)
+            # ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
@@ -87,7 +87,7 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
-            ogre_hit_list.remove(self)
+            # ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
