@@ -30,24 +30,10 @@ class Organism(pygame.sprite.Sprite):
 
     def move(self, current_room, current_chunk):
 
-        chunk = current_chunk
-
-        if self.rect.left < chunk.left:
-            utilities.remove_from_chunk(self, self.species, self.current_chunk)
-            utilities.place_in_chunk(self, current_room)
-        if self.rect.right > chunk.right:
-            utilities.remove_from_chunk(self, self.species, self.current_chunk)
-            utilities.place_in_chunk(self, current_room)
-        if self.rect.top < chunk.top:
-            utilities.remove_from_chunk(self, self.species, self.current_chunk)
-            utilities.place_in_chunk(self, current_room)
-        if self.rect.bottom > chunk.bottom:
-            utilities.remove_from_chunk(self, self.species, self.current_chunk)
-            utilities.place_in_chunk(self, current_room)
-
         block_hit_list = []
         goblin_hit_list = []
         ogre_hit_list = []
+        neighbor_hit_list = []
 
         # X checks
         self.rect.x += self.change_x
@@ -63,17 +49,31 @@ class Organism(pygame.sprite.Sprite):
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
 
-        hit_lists = (block_hit_list, goblin_hit_list, ogre_hit_list)
+        hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
+
+        print(self.change_x)
+        print(self.change_y)
 
         for hit_list in hit_lists:
 
+
             for item in hit_list:
+
                 if self.change_x > 0 and self.rect.right != item.rect.right:
                     self.rect.right = item.rect.left
                 elif self.change_x < 0 and self.rect.left != item.rect.left:
                     self.rect.left = item.rect.right
             # places creature back inside play area if it bugs out
         self.check_bound(current_room)
+
+        current_chunk = self.current_chunk
+        chunk = current_chunk
+        if self.rect.left < chunk.left:
+            utilities.remove_from_chunk(self, self.species, self.current_chunk)
+            utilities.place_in_chunk(self, current_room)
+        if self.rect.right > chunk.right:
+            utilities.remove_from_chunk(self, self.species, self.current_chunk)
+            utilities.place_in_chunk(self, current_room)
 
         # Y checks
         self.rect.y += self.change_y
@@ -100,9 +100,18 @@ class Organism(pygame.sprite.Sprite):
                     self.rect.top = item.rect.bottom
         self.check_bound(current_room)
 
+        chunk = self.current_chunk
+        if self.rect.top < chunk.top:
+            utilities.remove_from_chunk(self, self.species, self.current_chunk)
+            utilities.place_in_chunk(self, current_room)
+        if self.rect.bottom > chunk.bottom:
+            utilities.remove_from_chunk(self, self.species, self.current_chunk)
+            utilities.place_in_chunk(self, current_room)
+
     def expire(self):
 
         utilities.remove_from_chunk(self, self.species, self.current_chunk)
+
         if self.species == "Goblin":
             self.current_room.coins_on_death.append(self.lifetime_coins)
             self.current_room.death_ages.append(self.age)
@@ -111,7 +120,6 @@ class Organism(pygame.sprite.Sprite):
             self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
             self.current_room.ogre_death_ages.append(self.age)
             self.current_room.ogres.remove(self)
-        self.current_room.movingsprites.remove(self)
         
 
     def pick_target(self, neighbors, current_chunk_row, current_chunk_column):

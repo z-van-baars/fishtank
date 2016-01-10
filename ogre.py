@@ -27,12 +27,29 @@ class Ogre(organism.Organism):
         self.current_room = current_room
         self.neighbors = []
 
-    def do_thing(self, current_room):
-        if self.current_chunk_row is None or \
-           self.current_chunk_column is None:
-            utilities.place_in_chunk(self, current_room)
-        if self.target_goblin:
-            self.chase(current_room)
+    def do_thing(self):
+        self.age += 1
+        self.ticks_without_food += 1
+
+        if self.age > 2000:
+            self.expire()
+            self.current_room.ogre_old_age_deaths += 1
+            utilities.log("An Ogre died of old age")
+        elif self.ticks_without_food > 200:
+            self.expire()
+            self.current_room.ogre_starvation_deaths += 1
+            utilities.log("An Ogre died of starvation")
+        else:
+            self.pick_target(self.current_room)
+            if self.current_chunk_row is None or \
+               self.current_chunk_column is None:
+                utilities.place_in_chunk(self, self.current_room)
+            if self.target_goblin:
+                self.chase(self.current_room)
+            self.move(current_room, self.current_chunk)
+            if self.goblins_eaten > 39:
+                self.reproduce(self.current_room)
+            self.current_room.movingsprites.add(self)
 
     # overrides... but should it?
     def pick_target(self, current_room):

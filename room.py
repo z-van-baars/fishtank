@@ -126,45 +126,16 @@ class Room1(Room):
             self.chunk_rows.append(new_chunk_row)
 
     def update(self):
+        self.movingsprites = pygame.sprite.Group()
         if len(self.coins_list) < 60:
             self.spawn_coins(30)
 
         for ogre in self.ogres:
-            ogre.age += 1
-            ogre.ticks_without_food += 1
-            if ogre.age > 2000:
-                ogre.expire()
-                self.ogre_old_age_deaths += 1
-                utilities.log("An Ogre died of old age")
-            elif ogre.ticks_without_food > 200:
-                ogre.expire()
-                self.ogre_starvation_deaths += 1
-                utilities.log("An Ogre died of starvation")
-            else:
-                ogre.pick_target(self)
-                ogre.do_thing(self)
-                ogre.move(ogre.current_room, ogre.current_chunk)
-                if ogre.goblins_eaten > 39:
-                    ogre.reproduce(self)
-                self.movingsprites.add(ogre)
+            ogre.do_thing()
 
         for goblin in self.goblins:
-            goblin.age += 1
-            goblin.ticks_without_food += 1
-            if goblin.age > 2000:
-                goblin.expire()
-                self.age_deaths += 1
-                utilities.log("a goblin died of old age")
-            elif goblin.ticks_without_food > 200:
-                goblin.expire()
-                self.starvation_deaths += 1
-                utilities.log("a goblin died of starvation")
-            else:
-                goblin.do_thing(self)
-                goblin.move(goblin.current_room, goblin.current_chunk)
-                if goblin.coins_collected > 15:
-                    goblin.reproduce(self)
-                self.movingsprites.add(goblin)
+            goblin.do_thing()
+
 
     def spawn_coins(self, num_coins):
         for coin in range(num_coins):

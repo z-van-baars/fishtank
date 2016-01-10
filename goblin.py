@@ -62,13 +62,29 @@ class Goblin(organism.Organism):
         elif predator_y_pos > center_y:
             self.change_y = -self.speed
 
-    def do_thing(self, current_room):
+    def do_thing(self):
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
-            utilities.place_in_chunk(self, current_room)
-        
-        self.safety(current_room)
-        self.eat(current_room)
+            utilities.place_in_chunk(self, self.current_room)
+
+        self.age += 1
+        self.ticks_without_food += 1
+
+        if self.age > 2000:
+            self.expire()
+            self.current_room.age_deaths += 1
+            utilities.log("a goblin died of old age")
+        elif self.ticks_without_food > 200:
+            self.expire()
+            self.current_room.starvation_deaths += 1
+            utilities.log("a goblin died of starvation")
+        else:
+            self.safety(self.current_room)
+            self.eat(self.current_room)
+            self.move(self.current_room, self.current_chunk)
+            if self.coins_collected > 15:
+                self.reproduce(self.current_room)
+            self.current_room.movingsprites.add(self)
 
 
     def reproduce(self, current_room):
