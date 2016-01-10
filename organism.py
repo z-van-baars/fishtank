@@ -69,7 +69,6 @@ class Organism(pygame.sprite.Sprite):
 
             for item in hit_list:
                 if self.change_x > 0 and self.rect.right != item.rect.right:
-                    print("boom")
                     self.rect.right = item.rect.left
                 elif self.change_x < 0 and self.rect.left != item.rect.left:
                     self.rect.left = item.rect.right
