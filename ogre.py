@@ -66,9 +66,12 @@ class Ogre(organism.Organism):
         elif prey_y < self.rect.y:
             self.change_y = -self.speed
         goblin_hit_list = []
-        goblin_hit_list = pygame.sprite.spritecollide(self, current_room.goblins, True)
+        goblin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.goblins_list, True)
+        for chunk in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, True))
+            goblin_hit_list = goblin_hit_list + neighbor_hit_list
         for goblin in goblin_hit_list:
-            current_room.goblins.remove(goblin)
+            goblin.expire(goblin)
             self.goblins_eaten += 1
             self.lifetime_goblins_eaten += 1
             self.ticks_without_food = 0

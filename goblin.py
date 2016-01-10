@@ -24,6 +24,7 @@ class Goblin(organism.Organism):
         self.species = "Goblin"
         self.current_chunk_row = None
         self.current_chunk_column = None
+        self.current_chunk = None
         self.current_room = current_room
         self.neighbors = []
 
@@ -34,7 +35,7 @@ class Goblin(organism.Organism):
         safety_right = center_x + 100
         safety_bottom = center_y + 100
         safety_top = center_y - 100
-        for ogre in current_room.ogres:
+        for ogre in self.current_chunk.ogres_list:
 
             predator_x_pos = ogre.rect.x + 10
             predator_y_pos = ogre.rect.y + 10
@@ -42,6 +43,14 @@ class Goblin(organism.Organism):
             if predator_x_pos < safety_right and predator_x_pos > safety_left:
                 if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
                     self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
+
+        for neighbor_chunk in self.neighbors:
+            for ogre in neighbor_chunk.ogres_list:
+                predator_x_pos = ogre.rect.x + 10
+                predator_y_pos = ogre.rect.y + 10
+                if predator_x_pos < safety_right and predator_x_pos > safety_left:
+                    if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
+                        self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
         if predator_x_pos < center_x:
@@ -57,13 +66,15 @@ class Goblin(organism.Organism):
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
             utilities.place_in_chunk(self, current_room)
-        self.eat(current_room)
+        
         self.safety(current_room)
+        self.eat(current_room)
 
 
     def reproduce(self, current_room):
         self.coins_collected = 0
         new_goblin = Goblin(self.rect.x + 17, self.rect.y, self.speed, current_room)
+        
         new_goblin.check_bound(current_room)
         utilities.place_in_chunk(new_goblin, current_room)
         current_room.goblins.add(new_goblin)
@@ -93,10 +104,13 @@ class Goblin(organism.Organism):
             self.change_y = 0
 
         coin_hit_list = []
-        coin_hit_list = pygame.sprite.spritecollide(self, current_room.coins_list, True)
+        coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.coins_list, True)
+        for chunk in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.coins_list, True))
+            coin_hit_list = coin_hit_list + neighbor_hit_list
         for coin in coin_hit_list:
             current_room.coins_list.remove(coin)
-            utilities.remove_from_chunk(coin)
+            utilities.remove_from_chunk(coin, "Coin", coin.current_chunk)
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0

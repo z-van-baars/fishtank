@@ -11,7 +11,6 @@ import room
 
 # To Do
 # =====
-# - Speed up coin searching / target selection
 # - Switch to vectors rather than X Y values
 
 

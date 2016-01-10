@@ -37,32 +37,34 @@ def gen_ogre_genes():
     return 3
 
 
-def place_in_chunk(self, current_room):
+def place_in_chunk(me, current_room):
 
     for row in range(len(current_room.chunk_rows)):
         for column in range(len(current_room.chunk_rows[row])):
             this_chunk = current_room.chunk_rows[row][column]
-            if this_chunk.left <= self.rect.x and self.rect.x <= this_chunk.right:
-                if this_chunk.top <= self.rect.y and self.rect.y <= this_chunk.bottom:
-                    if self.species == "Coin":
-                        this_chunk.coins_list.add(self)
-                        self.current_chunk_row = row
-                        self.current_chunk_column = column
-                    elif self.species == "Goblin":
-                        this_chunk.goblins_list.add(self)
-                        self.current_chunk_row = row
-                        self.current_chunk_column = column
-                    elif self.species == "Ogre":
-                        this_chunk.ogres_list.add(self)
-                        self.current_chunk_row = row
-                        self.current_chunk_column = column
+            if this_chunk.left <= me.rect.x and me.rect.x <= this_chunk.right:
+                if this_chunk.top <= me.rect.y and me.rect.y <= this_chunk.bottom:
+                    if me.species == "Coin":
+                        this_chunk.coins_list.add(me)
+                        me.current_chunk_row = row
+                        me.current_chunk_column = column
+                        me.current_chunk = this_chunk
+                    elif me.species == "Goblin":
+                        this_chunk.goblins_list.add(me)
+                        me.current_chunk_row = row
+                        me.current_chunk_column = column
+                        me.current_chunk = this_chunk
+                    elif me.species == "Ogre":
+                        this_chunk.ogres_list.add(me)
+                        me.current_chunk_row = row
+                        me.current_chunk_column = column
+                        me.current_chunk = this_chunk
 
-    self.neighbors = (get_valid_neighbors(self, self.current_chunk_row,
-                                          self.current_chunk_column))
+    me.neighbors = (get_valid_neighbors(me, me.current_chunk_row, me.current_chunk_column))
 
 
-def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
-        chunks = self.current_room.chunk_rows
+def get_valid_neighbors(me, current_chunk_row, current_chunk_column):
+        chunks = me.current_room.chunk_rows
         neighbors = []
 
         if current_chunk_row > 0:
@@ -96,13 +98,13 @@ def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
         return neighbors
 
 
-def remove_from_chunk(self):
-    chunk = (self.current_room.chunk_rows[self.current_chunk_row]
-                                         [self.current_chunk_column])
-    species = self.species
+def remove_from_chunk(me, species, chunk):
+    
     if species == "Coin":
-        chunk.coins_list.remove(self)
+        chunk.coins_list.remove(me)
     elif species == "Goblin":
-        chunk.goblins_list.remove(self)
-    elif self.species == "Ogre":
-        chunk.ogres_list.remove(self)
+        chunk.goblins_list.remove(me)
+    elif species == "Ogre":
+        chunk.ogres_list.remove(me)
+    elif species == "Wall":
+        chunk.walls_list.remove(me)

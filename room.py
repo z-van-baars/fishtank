@@ -12,6 +12,7 @@ class Coin(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.species = "Coin"
+        self.current_chunk = None
         self.current_chunk_row = None
         self.current_chunk_column = None
         self.current_room = current_room
@@ -40,6 +41,7 @@ class Chunk():
         self.coins_list = pygame.sprite.Group()
         self.goblins_list = pygame.sprite.Group()
         self.ogres_list = pygame.sprite.Group()
+        self.walls_list = pygame.sprite.Group()
 
 
 class Wall(pygame.sprite.Sprite):
@@ -51,7 +53,9 @@ class Wall(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.species = "Wall"
-
+        self.current_chunk_row = None
+        self.current_chunk_column = None
+        self.current_chunk = None
 
 class Room():
 
@@ -91,6 +95,8 @@ class Room1(Room):
     def __init__(self):
         Room.__init__(self)
 
+        self.create_chunks()
+
         walls = [[0, 0, 20, 600, colors.blue_grey],
                  [780, 0, 20, 600, colors.blue_grey],
                  [20, 0, 760, 20, colors.blue_grey],
@@ -100,7 +106,7 @@ class Room1(Room):
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
-        self.create_chunks()
+        
 
     def create_chunks(self):
         chunk_row0 = [[20, 20],[115, 20],[210, 20],[305, 20],[400, 20],[495, 20],[590, 20],[685, 20]]
@@ -127,23 +133,17 @@ class Room1(Room):
             ogre.age += 1
             ogre.ticks_without_food += 1
             if ogre.age > 2000:
-                self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
-                self.ogre_death_ages.append(5000)
-                self.ogres.remove(ogre)
-                self.movingsprites.remove(ogre)
-                self.age_deaths += 1
+                ogre.expire()
+                self.ogre_old_age_deaths += 1
                 utilities.log("An Ogre died of old age")
             elif ogre.ticks_without_food > 200:
-                self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
-                self.ogre_death_ages.append(ogre.age)
-                self.ogres.remove(ogre)
-                self.movingsprites.remove(ogre)
+                ogre.expire()
                 self.ogre_starvation_deaths += 1
                 utilities.log("An Ogre died of starvation")
             else:
                 ogre.pick_target(self)
                 ogre.do_thing(self)
-                ogre.move(ogre.current_room)
+                ogre.move(ogre.current_room, ogre.current_chunk)
                 if ogre.goblins_eaten > 39:
                     ogre.reproduce(self)
                 self.movingsprites.add(ogre)
@@ -152,22 +152,16 @@ class Room1(Room):
             goblin.age += 1
             goblin.ticks_without_food += 1
             if goblin.age > 2000:
-                self.coins_on_death.append(goblin.lifetime_coins)
-                self.death_ages.append(2000)
-                self.goblins.remove(goblin)
-                self.movingsprites.remove(goblin)
+                goblin.expire()
                 self.age_deaths += 1
                 utilities.log("a goblin died of old age")
             elif goblin.ticks_without_food > 200:
-                self.coins_on_death.append(goblin.lifetime_coins)
-                self.death_ages.append(goblin.age)
-                self.goblins.remove(goblin)
-                self.movingsprites.remove(goblin)
+                goblin.expire()
                 self.starvation_deaths += 1
                 utilities.log("a goblin died of starvation")
             else:
                 goblin.do_thing(self)
-                goblin.move(goblin.current_room)
+                goblin.move(goblin.current_room, goblin.current_chunk)
                 if goblin.coins_collected > 15:
                     goblin.reproduce(self)
                 self.movingsprites.add(goblin)
