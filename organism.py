@@ -43,20 +43,19 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, False))
                 goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            goblin_hit_list.remove(self)
         if self.species == "Ogre":
             ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
+            ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
 
         for hit_list in hit_lists:
             for item in hit_list:
-                print(item)
-                print(self)
-                print("---")
                 if self.change_x > 0 and item != self:
                     self.rect.right = item.rect.left
                 elif self.change_x < 0 and item != self:
@@ -82,20 +81,24 @@ class Organism(pygame.sprite.Sprite):
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, False))
                 goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            goblin_hit_list.remove(self)
         if self.species == "Ogre":
             ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
             for chunk in self.neighbors:
                 neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
                 ogre_hit_list = ogre_hit_list + neighbor_hit_list
+            ogre_hit_list.remove(self)
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
+
         for hit_list in hit_lists:
 
             for item in hit_list:
-                if self.change_y > 0 and self.rect.top != item.rect.top:
+                if self.change_y > 0:
                     self.rect.bottom = item.rect.top
-                elif self.change_y < 0 and self.rect.bottom != item.rect.bottom:
+                elif self.change_y < 0:
                     self.rect.top = item.rect.bottom
+
         self.check_bound(current_room)
 
         chunk = self.current_chunk
