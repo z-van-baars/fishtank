@@ -17,24 +17,19 @@ import colors
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color):
         pygame.sprite.Sprite.__init__(self)
-
         self.image = pygame.Surface([width, height])
         self.image.fill(color)
-
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
         self.species = "Wall"
 
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y, current_room):
         pygame.sprite.Sprite.__init__(self)
-
         self.image = pygame.Surface([5, 5])
         self.image.fill(colors.gold)
-
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -70,6 +65,7 @@ class Chunk():
 
 
 class Room():
+
     wall_list = None
     coins_list = None
     goblins = None
@@ -102,6 +98,7 @@ class Room():
 
 
 class Room1(Room):
+
     def __init__(self):
         Room.__init__(self)
 
@@ -140,14 +137,14 @@ class Room1(Room):
         for ogre in self.ogres:
             ogre.age += 1
             ogre.ticks_without_food += 1
-            if ogre.age > 5000:
+            if ogre.age > 2000:
                 self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
                 self.ogre_death_ages.append(5000)
                 self.ogres.remove(ogre)
                 self.movingsprites.remove(ogre)
                 self.age_deaths += 1
                 utilities.log("An Ogre died of old age")
-            elif ogre.ticks_without_food > 800:
+            elif ogre.ticks_without_food > 200:
                 self.goblins_eaten_on_death.append(ogre.lifetime_goblins_eaten)
                 self.ogre_death_ages.append(ogre.age)
                 self.ogres.remove(ogre)
@@ -200,9 +197,7 @@ def graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
     ogre_pop = len(current_room.ogres)
     goblin_pop = round(goblin_pop / 2)
     ogre_pop = round(ogre_pop)
-
     graph_time = round(time / 60)
-
     screen.blit(ogre_pop_ticker, [graph_time, (799 - ogre_pop)])
     screen.blit(goblin_pop_ticker, [graph_time, (799 - goblin_pop)])
 
@@ -210,19 +205,15 @@ def graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
 def main():
     pygame.init()
     screen = pygame.display.set_mode([800, 800])
-    pygame.display.set_caption('There\'s always a bigger fish Test')
+    pygame.display.set_caption("There's always a bigger fish")
 
-    rooms = []
-    rooms.append(Room1())
-
+    rooms = [Room1()]
     goblin_pop_log = []
     ogre_pop_log = []
     current_room_no = 0
     current_room = rooms[current_room_no]
 
     clock = pygame.time.Clock()
-    done = False
-    go = False
     time = 0
     font = pygame.font.SysFont('Calibri', 18, True, False)
     goblin_pop_ticker = pygame.Surface([1, 1])
@@ -234,6 +225,7 @@ def main():
     tank_bg = pygame.Surface([800, 600])
     tank_bg.fill(colors.black)
 
+    done = False
     while not done:
         goblin_counter = font.render(str(len(current_room.goblins)), False, colors.black)
         starvation_counter = font.render(str(current_room.starvation_deaths), False, colors.red)
@@ -254,7 +246,6 @@ def main():
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, current_room)
                     utilities.place_in_chunk(new_goblin, current_room)
                     current_room.goblins.add(new_goblin)
-                    go = True
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
@@ -263,14 +254,11 @@ def main():
                     utilities.place_in_chunk(new_ogre, current_room)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
-                    go = True
 
                 elif event.key == pygame.K_SPACE:
                     current_room.spawn_coins(100)
 
-        if go:
-            current_room.update()
-
+        current_room.update()
         graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker)
         screen.blit(tank_bg, [0, 0])
         current_room.movingsprites.draw(screen)
@@ -281,7 +269,6 @@ def main():
         screen.blit(old_age_counter, [200, 1])
         screen.blit(ogre_counter, [500, 1])
         screen.blit(ogre_meals_counter, [550, 1])
-
         pygame.display.flip()
         clock.tick(60)
         time += 1
@@ -290,14 +277,17 @@ def main():
         current_room.average_death_age = statistics.mean(current_room.death_ages)
     else:
         current_room.average_death_age = 0
+
     if current_room.coins_on_death:
         current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
     else:
         current_room.coins_on_death_average = 0
+
     if current_room.ogre_death_ages:
         current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
     else:
         current_room.ogre_average_death_age = 0
+
     if current_room.goblins_eaten_on_death:
         current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
     else:
@@ -312,7 +302,7 @@ def main():
     print("-")
     print("Average age of Ogres at death: %s" % str(current_room.ogre_average_death_age))
     print("Average number of Goblins eaten: %s" % str(current_room.ogre_average_goblins_eaten))
-
     pygame.quit()
 
-main()
+if __name__ == "__main__":
+    main()
