@@ -51,17 +51,15 @@ class Organism(pygame.sprite.Sprite):
 
         hit_lists = (wall_hit_list, goblin_hit_list, ogre_hit_list)
 
-        print(self.change_x)
-        print(self.change_y)
 
         for hit_list in hit_lists:
-
-
             for item in hit_list:
-
-                if self.change_x > 0 and self.rect.right != item.rect.right:
+                print(item)
+                print(self)
+                print("---")
+                if self.change_x > 0 and item != self:
                     self.rect.right = item.rect.left
-                elif self.change_x < 0 and self.rect.left != item.rect.left:
+                elif self.change_x < 0 and item != self:
                     self.rect.left = item.rect.right
             # places creature back inside play area if it bugs out
         self.check_bound(current_room)
