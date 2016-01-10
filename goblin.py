@@ -44,8 +44,6 @@ class Goblin(organism.Organism):
                     self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
-
-        utilities.log("a goblin is in danger!")
         if predator_x_pos < center_x:
             self.change_x = self.speed
         elif predator_x_pos > center_x:
