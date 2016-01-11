@@ -2,18 +2,15 @@ import random
 import math
 import pygame
 import colors
+import item
 import utilities
 
 
-class Organism(pygame.sprite.Sprite):
+class Organism(item.Item):
 
-    def __init__(self):
+    def __init__(self, x, y, current_room, color, width, height):
         pygame.sprite.Sprite.__init__(self)
-        self.species = None
-
-    def changespeed(self, x, y):
-        self.change_x += x
-        self.change_y += y
+        item.Item.__init__(self, x, y, current_room, color, width, height)
 
     def do_thing(self):
         raise NotImplementedError()
@@ -46,6 +43,7 @@ class Organism(pygame.sprite.Sprite):
             utilities.place_in_chunk(self, current_room)
         if self.rect.right > chunk.right:
             utilities.place_in_chunk(self, current_room)
+
 
     def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
         target_object = None

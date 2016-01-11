@@ -5,27 +5,18 @@ import organism
 
 
 class Ogre(organism.Organism):
-    change_x = 0
-    change_y = 0
-    age = 0
-    ticks_without_food = 0
 
-    def __init__(self, x, y, speed, current_room):
-        organism.Organism.__init__(self)
-        self.image = pygame.Surface([20, 20])
-        self.image.fill(colors.red)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+
+    def __init__(self, x, y, current_room):
+        organism.Organism.__init__(self, x, y, current_room, colors.red, 20, 20)
         self.target_goblin = None
-        self.speed = speed
+        self.speed = 3
         self.goblins_eaten = 0
         self.lifetime_goblins_eaten = 0
-        self.species = "Ogre"
-        self.current_chunk_row = None
-        self.current_chunk_column = None
-        self.current_room = current_room
-        self.neighbors = []
+        self.change_x = 0
+        self.change_y = 0
+        self.age = 0
+        self.ticks_without_food = 0
 
     def dead(self):
         if self.age > 2000:
@@ -33,18 +24,16 @@ class Ogre(organism.Organism):
             utilities.log("An ogre died of old age")
             self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
             self.current_room.ogre_death_ages.append(self.age)
-            self.current_room.ogres.remove(self)
-            self.current_chunk.ogres_list.remove(self)
-            self.current_room.movingsprites.remove(self)
+            self.expire()
+            self.current_room.entity_list[movingsprites].remove(self)
             return True
         elif self.ticks_without_food > 300:
             self.current_room.ogre_starvation_deaths += 1
             utilities.log("An Ogre died of starvation")
             self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
             self.current_room.ogre_death_ages.append(self.age)
-            self.current_room.ogres.remove(self)
-            self.current_chunk.ogres_list.remove(self)
-            self.current_room.movingsprites.remove(self)
+            self.expire()
+            self.current_room.entity_list[movingsprites].remove(self)
             return True
 
     def do_thing(self):

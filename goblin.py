@@ -5,30 +5,20 @@ import organism
 
 
 class Goblin(organism.Organism):
-    change_x = 0
-    change_y = 0
-    age = 0
-    ticks_without_food = 0
 
-    def __init__(self, x, y, speed, current_room):
-        organism.Organism.__init__(self)
-        self.image = pygame.Surface([15, 15])
-        self.image.fill(colors.green)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.speed = speed
+
+    def __init__(self, x, y, current_room):
+        organism.Organism.__init__(self, x, y, current_room, colors.green, 15, 15)
+        self.speed = 2
         self.coins_collected = 0
         self.lifetime_coins = 0
         self.target_coin = None
-        self.species = "Goblin"
-        self.current_chunk_row = None
-        self.current_chunk_column = None
-        self.current_chunk = None
-        self.current_room = current_room
-        self.neighbors = []
         self.max_age = 2000
         self.max_hunger = 300
+        self.change_x = 0
+        self.change_y = 0
+        self.age = 0
+        self.ticks_without_food = 0
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -68,24 +58,22 @@ class Goblin(organism.Organism):
             utilities.log("a goblin died of old age")
             self.current_room.coins_on_death.append(self.lifetime_coins)
             self.current_room.death_ages.append(self.age)
-            self.current_room.goblins.remove(self)
-            self.current_chunk.goblins_list.remove(self)
-            self.current_room.movingsprites.remove(self)
+            self.expire()
+            self.current_room.entity_list[movingsprites].remove(self)
             return True
         elif self.ticks_without_food > 300:
             self.current_room.starvation_deaths += 1
             utilities.log("a goblin died of starvation")
             self.current_room.coins_on_death.append(self.lifetime_coins)
             self.current_room.death_ages.append(self.age)
-            self.current_room.goblins.remove(self)
-            self.current_chunk.goblins_list.remove(self)
-            self.current_room.movingsprites.remove(self)
+            self.expire()
+            self.current_room.entity_list[movingsprites].remove(self)
             return True
 
     def do_thing(self):
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
-            utilities.place_in_chunk(self, self.current_room)
+            self.place_in_chunk(self, self.current_room)
 
         self.age += 1
         self.ticks_without_food += 1
