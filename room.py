@@ -126,15 +126,17 @@ class Room1(Room):
             self.chunk_rows.append(new_chunk_row)
 
     def update(self):
+        self.movingsprites = None
         self.movingsprites = pygame.sprite.Group()
         if len(self.coins_list) < 60:
             self.spawn_coins(30)
 
         for ogre in self.ogres:
             ogre.do_thing()
-
+        self.movingsprites.add(self.ogres)
         for goblin in self.goblins:
             goblin.do_thing()
+        self.movingsprites.add(self.goblins)
 
 
     def spawn_coins(self, num_coins):

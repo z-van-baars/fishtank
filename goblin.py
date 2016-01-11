@@ -27,6 +27,8 @@ class Goblin(organism.Organism):
         self.current_chunk = None
         self.current_room = current_room
         self.neighbors = []
+        self.max_age = 2000
+        self.max_hunger = 300
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -36,10 +38,8 @@ class Goblin(organism.Organism):
         safety_bottom = center_y + 100
         safety_top = center_y - 100
         for ogre in self.current_chunk.ogres_list:
-
             predator_x_pos = ogre.rect.x + 10
             predator_y_pos = ogre.rect.y + 10
-
             if predator_x_pos < safety_right and predator_x_pos > safety_left:
                 if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
                     self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
@@ -62,6 +62,18 @@ class Goblin(organism.Organism):
         elif predator_y_pos > center_y:
             self.change_y = -self.speed
 
+    def dead(self):
+        if self.age > 2000:
+            self.expire()
+            self.current_room.age_deaths += 1
+            utilities.log("a goblin died of old age")
+            return True
+        elif self.ticks_without_food > 300:
+            self.expire()
+            self.current_room.starvation_deaths += 1
+            utilities.log("a goblin died of starvation")
+            return True
+
     def do_thing(self):
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
@@ -70,22 +82,42 @@ class Goblin(organism.Organism):
         self.age += 1
         self.ticks_without_food += 1
 
-        if self.age > 2000:
-            self.expire()
-            self.current_room.age_deaths += 1
-            utilities.log("a goblin died of old age")
-        elif self.ticks_without_food > 200:
-            self.expire()
-            self.current_room.starvation_deaths += 1
-            utilities.log("a goblin died of starvation")
-        else:
+        if not self.dead():
             self.safety(self.current_room)
             self.eat(self.current_room)
             self.move(self.current_room, self.current_chunk)
             if self.coins_collected > 15:
                 self.reproduce(self.current_room)
-            self.current_room.movingsprites.add(self)
 
+    def collide_x(self, current_room, current_chunk):
+        wall_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
+        goblin_hit_list = pygame.sprite.spritecollide(self, current_chunk.goblins_list, False)
+        for neighbor in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.goblins_list, False))
+            goblin_hit_list = goblin_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, goblin_hit_list)
+
+        for hit_list in hit_lists:
+            for item in hit_list:
+                if self.change_x > 0 and item != self:
+                    self.rect.right = item.rect.left
+                elif self.change_x < 0 and item != self:
+                    self.rect.left = item.rect.right
+
+    def collide_y(self, current_room, current_chunk):
+        wall_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
+        goblin_hit_list = pygame.sprite.spritecollide(self, current_chunk.goblins_list, False)
+        for neighbor in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.goblins_list, False))
+            goblin_hit_list = goblin_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, goblin_hit_list)
+
+        for hit_list in hit_lists:
+            for item in hit_list:
+                if self.change_y > 0 and item != self:
+                    self.rect.bottom = item.rect.top
+                elif self.change_y < 0 and item != self:
+                    self.rect.top = item.rect.bottom
 
     def reproduce(self, current_room):
         self.coins_collected = 0
@@ -126,7 +158,7 @@ class Goblin(organism.Organism):
             coin_hit_list = coin_hit_list + neighbor_hit_list
         for coin in coin_hit_list:
             current_room.coins_list.remove(coin)
-            utilities.remove_from_chunk(coin, "Coin", coin.current_chunk)
+            coin.current_chunk.coins_list.remove(coin)
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0

@@ -39,26 +39,30 @@ def gen_ogre_genes():
 
 def place_in_chunk(me, current_room):
 
+    row_no = 0
     for row in range(len(current_room.chunk_rows)):
+        column_no = 0
         for column in range(len(current_room.chunk_rows[row])):
             this_chunk = current_room.chunk_rows[row][column]
             if this_chunk.left <= me.rect.x and me.rect.x <= this_chunk.right:
                 if this_chunk.top <= me.rect.y and me.rect.y <= this_chunk.bottom:
                     if me.species == "Coin":
                         this_chunk.coins_list.add(me)
-                        me.current_chunk_row = row
-                        me.current_chunk_column = column
+                        me.current_chunk_row = row_no
+                        me.current_chunk_column = column_no
                         me.current_chunk = this_chunk
                     elif me.species == "Goblin":
                         this_chunk.goblins_list.add(me)
-                        me.current_chunk_row = row
-                        me.current_chunk_column = column
+                        me.current_chunk_row = row_no
+                        me.current_chunk_column = column_no
                         me.current_chunk = this_chunk
                     elif me.species == "Ogre":
                         this_chunk.ogres_list.add(me)
-                        me.current_chunk_row = row
-                        me.current_chunk_column = column
+                        me.current_chunk_row = row_no
+                        me.current_chunk_column = column_no
                         me.current_chunk = this_chunk
+            column_no += 1
+        row_no += 1
 
     me.neighbors = (get_valid_neighbors(me, me.current_chunk_row, me.current_chunk_column))
 
@@ -96,15 +100,3 @@ def get_valid_neighbors(me, current_chunk_row, current_chunk_column):
                                    [current_chunk_column - 1])  # left
 
         return neighbors
-
-
-def remove_from_chunk(me, species, chunk):
-    
-    if species == "Coin":
-        chunk.coins_list.remove(me)
-    elif species == "Goblin":
-        chunk.goblins_list.remove(me)
-    elif species == "Ogre":
-        chunk.ogres_list.remove(me)
-    elif species == "Wall":
-        chunk.walls_list.remove(me)

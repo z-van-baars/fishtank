@@ -49,7 +49,36 @@ class Ogre(organism.Organism):
             self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
                 self.reproduce(self.current_room)
-            self.current_room.movingsprites.add(self)
+
+    def collide_x(self, current_room, current_chunk):
+        wall_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
+        ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
+        for chunk in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
+            ogre_hit_list = ogre_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, ogre_hit_list)
+
+        for hit_list in hit_lists:
+            for item in hit_list:
+                if self.change_x > 0 and item != self:
+                    self.rect.right = item.rect.left
+                elif self.change_x < 0 and item != self:
+                    self.rect.left = item.rect.right
+    def collide_y(self, current_room, current_chunk):
+        wall_hit_list = pygame.sprite.spritecollide(self, current_room.wall_list, False)
+        ogre_hit_list = pygame.sprite.spritecollide(self, current_chunk.ogres_list, False)
+        for chunk in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.ogres_list, False))
+            ogre_hit_list = ogre_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, ogre_hit_list)
+
+        for hit_list in hit_lists:
+            for item in hit_list:
+                if self.change_y > 0 and item != self:
+                    self.rect.bottom = item.rect.top
+                elif self.change_y < 0 and item != self:
+                    self.rect.top = item.rect.bottom
+
 
     # overrides... but should it?
     def pick_target(self, current_room):
@@ -88,7 +117,7 @@ class Ogre(organism.Organism):
             neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, True))
             goblin_hit_list = goblin_hit_list + neighbor_hit_list
         for goblin in goblin_hit_list:
-            goblin.expire(goblin)
+            goblin.expire()
             self.goblins_eaten += 1
             self.lifetime_goblins_eaten += 1
             self.ticks_without_food = 0
