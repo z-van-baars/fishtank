@@ -2,9 +2,9 @@ import pygame
 import colors
 import utilities
 
-class Item(pygame.sprite.Sprite):
+class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, current_room, color, width, height):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
         self.image = pygame.Surface([width, height])
         self.image.fill(color)
         self.rect = self.image.get_rect()
@@ -21,7 +21,6 @@ class Item(pygame.sprite.Sprite):
         self.current_chunk.entity_list[type(self)].remove(self)
 
     def place_in_chunk(self, current_room):
-
         row_no = 0
         for row in range(len(current_room.chunks)):
             column_no = 0

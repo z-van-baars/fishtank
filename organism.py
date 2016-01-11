@@ -2,15 +2,14 @@ import random
 import math
 import pygame
 import colors
-import item
+import entity
 import utilities
 
 
-class Organism(item.Item):
+class Organism(entity.Entity):
 
     def __init__(self, x, y, current_room, color, width, height):
-        pygame.sprite.Sprite.__init__(self)
-        item.Item.__init__(self, x, y, current_room, color, width, height)
+        super().__init__(self, x, y, current_room, color, width, height)
 
     def do_thing(self):
         raise NotImplementedError()

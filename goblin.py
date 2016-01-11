@@ -8,7 +8,7 @@ class Goblin(organism.Organism):
 
 
     def __init__(self, x, y, current_room):
-        organism.Organism.__init__(self, x, y, current_room, colors.green, 15, 15)
+        super().__init__(self, x, y, current_room, colors.green, 15, 15)
         self.speed = 2
         self.coins_collected = 0
         self.lifetime_coins = 0
