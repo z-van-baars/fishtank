@@ -6,9 +6,8 @@ import organism
 
 class Ogre(organism.Organism):
 
-
     def __init__(self, x, y, current_room):
-        organism.Organism.__init__(self, x, y, current_room, colors.red, 20, 20)
+        super().__init__(self, x, y, current_room, colors.red, 20, 20)
         self.target_goblin = None
         self.speed = 3
         self.goblins_eaten = 0

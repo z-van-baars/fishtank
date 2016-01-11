@@ -2,24 +2,12 @@ import pygame
 import random
 import colors
 import utilities
-import item
+import entity
 import organism
 import ogre
 import goblin
-
-class Coin(item.Item):
-    def __init__(self, x, y, current_room):
-        pygame.sprite.Sprite.__init__(self)
-        item.Item.__init__(self, x, y, current_room, colors.gold, 5, 5)
-
-    def __lt__(self, other):
-        if self.rect.x < other.rect.x:
-            return True
-        elif self.rect.y < other.rect.y:
-            return True
-        else:
-            return False
-
+import coin
+import wall
 
 class Chunk():
 
@@ -29,18 +17,13 @@ class Chunk():
         self.top = y_pos
         self.bottom = y_pos + chunk_height - 1
         self.entity_list = {}
-        self.entity_list[Coin] = pygame.sprite.Group()
+        self.entity_list[coin.Coin] = pygame.sprite.Group()
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
-        self.entity_list[Wall] = pygame.sprite.Group()
+        self.entity_list[wall.Wall] = pygame.sprite.Group()
 
+class Room(object):
 
-class Wall(item.Item):
-    def __init__(self, x, y, current_room, color, width, height):
-        pygame.sprite.Sprite.__init__(self)
-        item.Item.__init__(self, x, y, current_room, color, width, height)
-
-class Room():
     def __init__(self):
         self.wall_list = None
         self.coins_list = None
@@ -48,10 +31,10 @@ class Room():
         self.ogres = None
         self.chunks = []
         self.entity_list = {}
-        self.entity_list[Coin] = pygame.sprite.Group()
+        self.entity_list[coin.Coin] = pygame.sprite.Group()
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
-        self.entity_list[Wall] = pygame.sprite.Group()
+        self.entity_list[wall.Wall] = pygame.sprite.Group()
         # goblins stats
         self.starvation_deaths = 0
         self.age_deaths = 0
@@ -72,59 +55,44 @@ class Room():
 class Room1(Room):
 
     def __init__(self, tank_width, tank_height, num_cols, num_rows):
-        Room.__init__(self)
+        super().__init__()
 
         self.create_chunks(tank_width, tank_height, num_cols, num_rows)
 
-        walls = [[0, 0, self, colors.blue_grey, 20, 600],
-                 [780, 0, self, colors.blue_grey, 20, 600],
-                 [20, 0, self, colors.blue_grey,  760, 20,],
-                 [20, 580, self, colors.blue_grey, 760, 20,]
-                ]
+        walls = [
+            [0, 0, self, colors.blue_grey, 20, 600],
+            [780, 0, self, colors.blue_grey, 20, 600],
+            [20, 0, self, colors.blue_grey,  760, 20],
+            [20, 580, self, colors.blue_grey, 760, 20],
+        ]
 
-        for item in walls:
-            wall = Wall(item[0], item[1], item[2], item[3], item[4], item[5])
-            self.entity_list[Wall].add(wall)
-        
+        for each in walls:
+            print(each)
+            self.entity_list[wall.Wall].add(wall.Wall(*each))
 
     def create_chunks(self, tank_width, tank_height, num_cols, num_rows):
-        # chunk_row0 = [[20, 20],[115, 20],[210, 20],[305, 20],[400, 20],[495, 20],[590, 20],[685, 20]]
-        # chunk_row1 = [[20, 100],[115, 100],[210, 100],[305, 100],[400, 100],[495, 100],[590, 100],[685, 100]]
-        # chunk_row2 = [[20, 180],[115, 180],[210, 180],[305, 180],[400, 180],[495, 180],[590, 180],[685, 180]]
-        # chunk_row3 = [[20, 260],[115, 260],[210, 260],[305, 260],[400, 260],[495, 260],[590, 260],[685, 260]]
-        # chunk_row4 = [[20, 340],[115, 340],[210, 340],[305, 340],[400, 340],[495, 340],[590, 340],[685, 340]]
-        # chunk_row5 = [[20, 420],[115, 420],[210, 420],[305, 420],[400, 420],[495, 420],[590, 420],[685, 420]]
-        # chunk_row6 = [[20, 500],[115, 500],[210, 500],[305, 500],[400, 500],[495, 500],[590, 500],[685, 500]]
-        # chunk_rows = [chunk_row0, chunk_row1, chunk_row2, chunk_row3, chunk_row4, chunk_row5, chunk_row6]
-
-        # for row in range(len(chunk_rows)):
-            # new_chunk_row = []
-            # for item in range(len(chunk_rows[row])):
-                # new_chunk = Chunk(chunk_rows[row][item][0], chunk_rows[row][item][1])
-                # new_chunk_row.append(new_chunk)
-            # self.chunk_rows.append(new_chunk_row)
-
+        if tank_width % num_cols != 0 or tank_height % num_rows != 0:
+            raise ValueError("Width and height must be evenly divisible by columns and rows\n" +
+                             "Width: {} Columns: {}\n".format(tank_width, num_cols) +
+                             "Height: {} Rows: {}".format(tank_height, num_rows))
         chunk_width = tank_width / num_cols
         chunk_height = tank_height / num_rows
 
         self.chunks = []
-        y = 0
-        while y + chunk_height < tank_height:
-            this_row = []
-            x = 0
-            while x + chunk_width <= tank_width:
-                this_chunk = Chunk(x, y, chunk_width, chunk_height)
-                this_row.append(this_chunk)
-                x += chunk_width
-            self.chunks.append(this_row)
-            y += chunk_height
-        print(len(self.chunks))
-        print(len(self.chunks[0]))
+        for ii in range(num_cols):
+            curr_row = []
+            for jj in range(num_rows):
+                curr_row.append(
+                    Chunk(ii * chunk_width, jj * chunk_height,
+                          chunk_width, chunk_height))
+            self.chunks.append(curr_row)
+
+        utilities.log(len(self.chunks))
+        utilities.log(len(self.chunks[0]))
 
 
     def update(self):
-        
-        if len(self.entity_list[Coin]) < 60:
+        if len(self.entity_list[coin.Coin]) < 60:
             self.spawn_coins(30)
 
         for ogre in self.entity_list[ogre.Ogre]:
@@ -133,12 +101,10 @@ class Room1(Room):
         for goblin in self.entity_list[goblin.Goblin]:
             goblin.do_thing()
 
-
-
     def spawn_coins(self, num_coins):
-        for coin in range(num_coins):
+        for each in range(num_coins):
             coin_x = random.randrange(30, 770)
             coin_y = random.randrange(30, 570)
-            coin = Coin(coin_x, coin_y, self)
-            self.entity_list[Coin].add(coin)
-            coin.place_in_chunk(self)
+            cc = coin.Coin(coin_x, coin_y, self)
+            self.entity_list[coin.Coin].add(cc)
+            cc.place_in_chunk(self)
