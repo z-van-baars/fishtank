@@ -35,6 +35,7 @@ class Item(pygame.sprite.Sprite):
                         self.current_chunk = this_chunk
                 column_no += 1
             row_no += 1
+        assert self.current_chunk
 
         self.neighbors = (self.get_valid_neighbors(self.current_chunk_row, self.current_chunk_column))
 
@@ -49,17 +50,17 @@ class Item(pygame.sprite.Sprite):
             if current_chunk_column > 0:
                 neighbors.append(chunks[current_chunk_row - 1]
                                        [current_chunk_column - 1])  # top left
-            elif current_chunk_column < (len(chunks[0]) - 1):
+            elif current_chunk_column < (len(chunks) - 1):
                 neighbors.append(chunks[current_chunk_row - 1]
                                        [current_chunk_column + 1])  # top right
 
-        if current_chunk_row < (len(chunks[0]) - 1):
+        elif current_chunk_row < (len(chunks[0]) - 1):
             neighbors.append(chunks[current_chunk_row + 1]
                                    [current_chunk_column])  # bottom center
             if current_chunk_column > 0:
                 neighbors.append(chunks[current_chunk_row + 1]
                                        [current_chunk_column - 1])  # bottom left
-            if current_chunk_column < (len(chunks[0]) - 1):
+            if current_chunk_column < (len(chunks) - 1):
                 neighbors.append(chunks[current_chunk_row + 1]
                                        [current_chunk_column + 1])  # bottom right
 
@@ -67,7 +68,7 @@ class Item(pygame.sprite.Sprite):
             neighbors.append(chunks[current_chunk_row]
                                    [current_chunk_column + 1])  # right
 
-        if current_chunk_column > 0:
+        elif current_chunk_column > 0:
             neighbors.append(chunks[current_chunk_row]
                                    [current_chunk_column - 1])  # left
 

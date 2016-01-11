@@ -24,12 +24,10 @@ class Coin(item.Item):
 class Chunk():
 
     def __init__(self, x_pos, y_pos, chunk_width, chunk_height):
-        self.x_pos = x_pos
-        self.y_pos = y_pos
         self.left = x_pos
-        self.right = x_pos + chunk_width
+        self.right = x_pos + chunk_width - 1
         self.top = y_pos
-        self.bottom = y_pos + chunk_height
+        self.bottom = y_pos + chunk_height - 1
         self.entity_list = {}
         self.entity_list[Coin] = pygame.sprite.Group()
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
@@ -54,7 +52,6 @@ class Room():
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
         self.entity_list[Wall] = pygame.sprite.Group()
-        self.entity_list['movingsprites'] = pygame.sprite.Group()
         # goblins stats
         self.starvation_deaths = 0
         self.age_deaths = 0
@@ -74,10 +71,10 @@ class Room():
 
 class Room1(Room):
 
-    def __init__(self, tank_width, tank_height):
+    def __init__(self, tank_width, tank_height, num_cols, num_rows):
         Room.__init__(self)
 
-        self.create_chunks(tank_width, tank_height)
+        self.create_chunks(tank_width, tank_height, num_cols, num_rows)
 
         walls = [[0, 0, self, colors.blue_grey, 20, 600],
                  [780, 0, self, colors.blue_grey, 20, 600],
@@ -90,7 +87,7 @@ class Room1(Room):
             self.entity_list[Wall].add(wall)
         
 
-    def create_chunks(self, tank_width, tank_height):
+    def create_chunks(self, tank_width, tank_height, num_cols, num_rows):
         # chunk_row0 = [[20, 20],[115, 20],[210, 20],[305, 20],[400, 20],[495, 20],[590, 20],[685, 20]]
         # chunk_row1 = [[20, 100],[115, 100],[210, 100],[305, 100],[400, 100],[495, 100],[590, 100],[685, 100]]
         # chunk_row2 = [[20, 180],[115, 180],[210, 180],[305, 180],[400, 180],[495, 180],[590, 180],[685, 180]]
@@ -107,8 +104,8 @@ class Room1(Room):
                 # new_chunk_row.append(new_chunk)
             # self.chunk_rows.append(new_chunk_row)
 
-        chunk_width = 100
-        chunk_height = 100
+        chunk_width = tank_width / num_cols
+        chunk_height = tank_height / num_rows
 
         self.chunks = []
         y = 0

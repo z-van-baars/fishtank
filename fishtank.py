@@ -34,7 +34,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
     tank_width = screen_width
     tank_height = screen_height - 200
-    rooms = [room.Room1(tank_width, tank_height)]
+    rooms = [room.Room1(tank_width, tank_height, 8, 6)]
     goblin_pop_log = []
     ogre_pop_log = []
     current_room_no = 0
@@ -72,7 +72,6 @@ def main():
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], current_room)
                     utilities.place_in_chunk(new_goblin, current_room)
                     current_room.entity_list[type(new_goblin)].add(new_goblin)
-                    current_room.entity_list['movingsprites'].add(new_goblin)
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
@@ -80,7 +79,6 @@ def main():
                     utilities.place_in_chunk(new_ogre, current_room)
                     new_ogre.pick_target(current_room)
                     current_room.entity_list[type(new_ogre)].add(new_ogre)
-                    current_room.entity_list['movingsprites'].add(new_ogre)
 
                 elif event.key == pygame.K_SPACE:
                     current_room.spawn_coins(100)
@@ -88,9 +86,8 @@ def main():
         current_room.update()
         graph_pop(screen, screen_height, screen_width, time, current_room, goblin_pop_ticker, ogre_pop_ticker)
         screen.blit(tank_bg, [0, 0])
-        current_room.entity_list['movingsprites'].draw(screen)
-        current_room.entity_list[room.Wall].draw(screen)
-        current_room.entity_list[room.Coin].draw(screen)
+        for key in current_room.entity_list:
+            key.draw(screen)
 
         # debug function draws all goblins in every chunk
         # for row in range(len(current_room.chunk_rows)):
