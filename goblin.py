@@ -64,14 +64,22 @@ class Goblin(organism.Organism):
 
     def dead(self):
         if self.age > 2000:
-            self.expire()
             self.current_room.age_deaths += 1
             utilities.log("a goblin died of old age")
+            self.current_room.coins_on_death.append(self.lifetime_coins)
+            self.current_room.death_ages.append(self.age)
+            self.current_room.goblins.remove(self)
+            self.current_chunk.goblins_list.remove(self)
+            self.current_room.movingsprites.remove(self)
             return True
         elif self.ticks_without_food > 300:
-            self.expire()
             self.current_room.starvation_deaths += 1
             utilities.log("a goblin died of starvation")
+            self.current_room.coins_on_death.append(self.lifetime_coins)
+            self.current_room.death_ages.append(self.age)
+            self.current_room.goblins.remove(self)
+            self.current_chunk.goblins_list.remove(self)
+            self.current_room.movingsprites.remove(self)
             return True
 
     def do_thing(self):
@@ -126,6 +134,7 @@ class Goblin(organism.Organism):
         new_goblin.check_bound(current_room)
         utilities.place_in_chunk(new_goblin, current_room)
         current_room.goblins.add(new_goblin)
+        current_room.movingsprites.add(new_goblin)
 
     def eat(self, current_room):
         if self.target_coin is None or \

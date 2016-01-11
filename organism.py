@@ -47,20 +47,6 @@ class Organism(pygame.sprite.Sprite):
         if self.rect.right > chunk.right:
             utilities.place_in_chunk(self, current_room)
 
-
-    def expire(self):
-
-        if self.species == "Goblin":
-            self.current_room.coins_on_death.append(self.lifetime_coins)
-            self.current_room.death_ages.append(self.age)
-            self.current_room.goblins.remove(self)
-            self.current_chunk.goblins_list.remove(self)
-        elif self.species == "Ogre":
-            self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
-            self.current_room.ogre_death_ages.append(self.age)
-            self.current_room.ogres.remove(self)
-            self.current_chunk.goblins_list.remove(self)
-
     def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
         target_object = None
         current_chunk = self.current_chunk
@@ -68,12 +54,10 @@ class Organism(pygame.sprite.Sprite):
         def look_near_me(neighbors, current_chunk):
             possible_targets = []
             nearby_targets = []
-            if current_chunk.coins_list:
-                nearby_targets = current_chunk.coins_list
-            else:
-                for chunk in neighbors:
-                    for target in chunk.coins_list:
-                        nearby_targets.append(target)
+            nearby_targets = current_chunk.coins_list
+            for chunk in neighbors:
+                for target in chunk.coins_list:
+                    nearby_targets.add(target)
             if nearby_targets:
                 for target in nearby_targets:
                     dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
@@ -82,6 +66,8 @@ class Organism(pygame.sprite.Sprite):
                 possible_targets = sorted(possible_targets)
                 target_object = possible_targets[0][1]
                 return target_object
+            else:
+                return None
 
         target_object = look_near_me(neighbors, current_chunk)
 

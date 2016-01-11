@@ -23,6 +23,28 @@ def graph_pop(screen, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
     screen.blit(ogre_pop_ticker, [graph_time, (799 - ogre_pop)])
     screen.blit(goblin_pop_ticker, [graph_time, (799 - goblin_pop)])
 
+def collect_stats(current_room):
+    if current_room.death_ages:
+        current_room.average_death_age = statistics.mean(current_room.death_ages)
+    else:
+        current_room.average_death_age = 0
+
+    if current_room.coins_on_death:
+        current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
+    else:
+        current_room.coins_on_death_average = 0
+
+    if current_room.ogre_death_ages:
+        current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
+    else:
+        current_room.ogre_average_death_age = 0
+
+    if current_room.goblins_eaten_on_death:
+        current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
+    else:
+        current_room.ogre_average_goblins_eaten = 0
+
+
 
 def main():
     pygame.init()
@@ -47,6 +69,9 @@ def main():
     tank_bg = pygame.Surface([800, 600])
     tank_bg.fill(colors.black)
 
+    current_room.movingsprites = None
+    current_room.movingsprites = pygame.sprite.Group()
+
     done = False
     while not done:
         goblin_counter = font.render(str(len(current_room.goblins)), False, colors.black)
@@ -68,6 +93,7 @@ def main():
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], genome, current_room)
                     utilities.place_in_chunk(new_goblin, current_room)
                     current_room.goblins.add(new_goblin)
+                    current_room.movingsprites.add(new_goblin)
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
@@ -76,6 +102,7 @@ def main():
                     utilities.place_in_chunk(new_ogre, current_room)
                     new_ogre.pick_target(current_room)
                     current_room.ogres.add(new_ogre)
+                    current_room.movingsprites.add(new_ogre)
 
                 elif event.key == pygame.K_SPACE:
                     current_room.spawn_coins(100)
@@ -86,6 +113,12 @@ def main():
         current_room.movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
         current_room.coins_list.draw(screen)
+
+        # debug function draws all goblins in every chunk
+        # for row in range(len(current_room.chunk_rows)):
+            # for item in range(len(current_room.chunk_rows[row])):
+                # current_room.chunk_rows[row][item].goblins_list.draw(screen)
+
         screen.blit(goblin_counter, [1, 1])
         screen.blit(starvation_counter, [100, 1])
         screen.blit(old_age_counter, [200, 1])
@@ -95,25 +128,7 @@ def main():
         clock.tick(60)
         time += 1
 
-    if current_room.death_ages:
-        current_room.average_death_age = statistics.mean(current_room.death_ages)
-    else:
-        current_room.average_death_age = 0
-
-    if current_room.coins_on_death:
-        current_room.coins_on_death_average = statistics.mean(current_room.coins_on_death)
-    else:
-        current_room.coins_on_death_average = 0
-
-    if current_room.ogre_death_ages:
-        current_room.ogre_average_death_age = statistics.mean(current_room.ogre_death_ages)
-    else:
-        current_room.ogre_average_death_age = 0
-
-    if current_room.goblins_eaten_on_death:
-        current_room.ogre_average_goblins_eaten = statistics.mean(current_room.goblins_eaten_on_death)
-    else:
-        current_room.ogre_average_goblins_eaten = 0
+    collect_stats(current_room)
 
     print("\n" * 5)
     print("Average age of Goblins at death: %s" % str(current_room.average_death_age))

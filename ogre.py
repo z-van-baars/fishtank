@@ -27,19 +27,31 @@ class Ogre(organism.Organism):
         self.current_room = current_room
         self.neighbors = []
 
+    def dead(self):
+        if self.age > 2000:
+            self.current_room.ogre_old_age_deaths += 1
+            utilities.log("An ogre died of old age")
+            self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
+            self.current_room.ogre_death_ages.append(self.age)
+            self.current_room.ogres.remove(self)
+            self.current_chunk.ogres_list.remove(self)
+            self.current_room.movingsprites.remove(self)
+            return True
+        elif self.ticks_without_food > 300:
+            self.current_room.ogre_starvation_deaths += 1
+            utilities.log("An Ogre died of starvation")
+            self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
+            self.current_room.ogre_death_ages.append(self.age)
+            self.current_room.ogres.remove(self)
+            self.current_chunk.ogres_list.remove(self)
+            self.current_room.movingsprites.remove(self)
+            return True
+
     def do_thing(self):
         self.age += 1
         self.ticks_without_food += 1
 
-        if self.age > 2000:
-            self.expire()
-            self.current_room.ogre_old_age_deaths += 1
-            utilities.log("An Ogre died of old age")
-        elif self.ticks_without_food > 200:
-            self.expire()
-            self.current_room.ogre_starvation_deaths += 1
-            utilities.log("An Ogre died of starvation")
-        else:
+        if not self.dead():
             self.pick_target(self.current_room)
             if self.current_chunk_row is None or \
                self.current_chunk_column is None:
@@ -111,22 +123,24 @@ class Ogre(organism.Organism):
             self.change_y = self.speed
         elif prey_y < self.rect.y:
             self.change_y = -self.speed
-        goblin_hit_list = []
         goblin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.goblins_list, True)
         for chunk in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, chunk.goblins_list, True))
             goblin_hit_list = goblin_hit_list + neighbor_hit_list
         for goblin in goblin_hit_list:
-            goblin.expire()
             self.goblins_eaten += 1
             self.lifetime_goblins_eaten += 1
             self.ticks_without_food = 0
             current_room.deaths_by_ogre += 1
             current_room.coins_on_death.append(goblin.lifetime_coins)
             current_room.death_ages.append(goblin.age)
+            current_room.goblins.remove(goblin)
+            goblin.current_chunk.goblins_list.remove(goblin)
+            current_room.movingsprites.remove(goblin)
 
     def reproduce(self, current_room):
         self.goblins_eaten = 0
         new_ogre = Ogre((self.rect.x + 22), self.rect.y, self.speed, current_room)
         new_ogre.check_bound(current_room)
         current_room.ogres.add(new_ogre)
+        current_room.movingsprites.add(new_ogre)
