@@ -49,62 +49,55 @@ class Entity(pygame.sprite.Sprite):
         print(current_chunk_row)
         print(current_chunk_column)
 
+        valid_chunks = [
+            [True, True, True],
+            [True, True, True],
+            [True, True, True],
+            ]
+
         # if you're in the top row of chunks
         if current_chunk_row == 0:
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column]) # just bottom so far
-            # if you're in the first column
-            if current_chunk_column == 0:
-                neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1]) # add the bottom right and right
-            # if you're in the last column
-            elif current_chunk_column == len(chunks[0]):
-                neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1]) # add the bottom left and left
-            # if you're in between
-            else:
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row][current_chunk_column + 1]) # add the left, right, bottom left and bottom right
+            valid_chunks[0][0] = False
+            valid_chunks[0][1] = False
+            valid_chunks[0][2] = False
 
-        # if you're in the bottom row of chunks
-        elif current_chunk_row == len(chunks):
-            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column]) # just the top so far
-            # if you're in the first column
-            if current_chunk_column == 0:
-                neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1]) # add the right and top right
-            # if you're in the last column
-            elif current_chunk_column == len(chunks[0]):
-                neighbors.append(chunks[current_chunk_row][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1]) # add the left and top left
-            # if you're in between
-            else:
-                neighbors.append(chunks[current_chunk_row][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1]) # add the left, right, top left, and top right
+        # if you're in the first column
+        if current_chunk_column == 0:
+            valid_chunks[0][0] = False
+            valid_chunks[1][0] = False
+            valid_chunks[2][0] = False
 
-        # if you're in between the top and bottom row
-        else:
+        # if you're in the last column
+        if current_chunk_column == len(chunks[0]):
+            valid_chunks[0][2] = False
+            valid_chunks[1][2] = False
+            valid_chunks[2][2] = False
+
+        # if you're in the bottom column
+        if current_chunk_row == len(chunks):
+            valid_chunks[2][0] = False
+            valid_chunks[2][1] = False
+            valid_chunks[2][2] = False
+
+        if valid_chunks[0][0]:
+            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1])
+        if valid_chunks[0][1]:
             neighbors.append(chunks[current_chunk_row - 1][current_chunk_column])
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column]) # just top and bottom so far
-            # if you're in the first column
-            if current_chunk_column == 0:
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1]) # add the top right and bottom right
-            # if you're in the last column
-            elif current_chunk_column == len(chunks[0]):
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1]) # add the top left and bottom left
-            # if you're in between
-            else:
+        if valid_chunks[0][2]:
+            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1])
+        if valid_chunks[1][0]:
+            neighbors.append(chunks[current_chunk_row][current_chunk_column - 1])
+        if valid_chunks[1][1]:
+            neighbors.append(chunks[current_chunk_row][current_chunk_column])
+        if valid_chunks[1][2]:
+            neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
+        if valid_chunks[2][0]:
+            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1])
+        if valid_chunks[2][1]:
+            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column])
+        if valid_chunks[2][2]:
+            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1])
 
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1])
-                neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1])
-                neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1]) # add the top left, bottom left, top right and top right
-        
 
         return neighbors
 
