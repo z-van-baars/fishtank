@@ -36,12 +36,16 @@ class Organism(entity.Entity):
 
         chunk = self.current_chunk
         if self.rect.top < chunk.top:
+            self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
         if self.rect.bottom > chunk.bottom:
+            self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
         if self.rect.left < chunk.left:
+            self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
         if self.rect.right > chunk.right:
+            self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
 
 

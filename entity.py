@@ -24,7 +24,6 @@ class Entity(pygame.sprite.Sprite):
         else:
             return False
 
-
     def expire(self):
         self.current_room.entity_list[type(self)].remove(self)
         self.current_chunk.entity_list[type(self)].remove(self)
@@ -33,12 +32,11 @@ class Entity(pygame.sprite.Sprite):
         for row in range(len(current_room.chunks)):
             for column in range(len(current_room.chunks[row])):
                 this_chunk = current_room.chunks[row][column]
-                if this_chunk.left <= self.rect.x and self.rect.x <= this_chunk.right:
-                    if this_chunk.top <= self.rect.y and self.rect.y <= this_chunk.bottom:
-                        this_chunk.entity_list[type(self)].add(self)
-                        self.current_chunk_row = row
-                        self.current_chunk_column = column
-                        self.current_chunk = this_chunk
+                if this_chunk.left <= self.rect.x <= this_chunk.right and this_chunk.top <= self.rect.y <= this_chunk.bottom:
+                    this_chunk.entity_list[type(self)].add(self)
+                    self.current_chunk_row = row
+                    self.current_chunk_column = column
+                    self.current_chunk = this_chunk
         assert self.current_chunk
 
         self.neighbors = (self.get_valid_neighbors(self.current_chunk_row, self.current_chunk_column))

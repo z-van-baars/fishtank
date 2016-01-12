@@ -67,6 +67,7 @@ class Goblin(organism.Organism):
             return True
 
     def do_thing(self):
+        print(self)
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
             self.place_in_chunk(self, self.current_room)
@@ -82,6 +83,7 @@ class Goblin(organism.Organism):
                 self.reproduce(self.current_room)
 
     def collide_x(self, current_room, current_chunk):
+        # pygame.sprite.spritecollide(self, current_room.entity_list[Goblin], False)
         goblin_hit_list = []
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         for neighbor in self.neighbors:
@@ -97,6 +99,7 @@ class Goblin(organism.Organism):
                     self.rect.left = item.rect.right
 
     def collide_y(self, current_room, current_chunk):
+        # pygame.sprite.spritecollide(self, current_room.entity_list[Goblin], False)
         goblin_hit_list = []
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         for neighbor in self.neighbors:
@@ -143,6 +146,7 @@ class Goblin(organism.Organism):
         else:
             self.change_y = 0
 
+        # pygame.sprite.spritecollide(self, self.current_room.entity_list[coin.Coin], True)
         coin_hit_list = []
         coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.entity_list[coin.Coin], True)
         for each in self.neighbors:
