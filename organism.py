@@ -52,14 +52,14 @@ class Organism(entity.Entity):
         def look_near_me(neighbors, current_chunk):
             possible_targets = []
             nearby_targets = []
-            nearby_targets = current_chunk.entity_list[coin.Coin]
+            nearby_targets = current_chunk.entity_list[self.food_type]
             for chunk in neighbors:
-                for target in chunk.entity_list[coin.Coin]:
+                for target in chunk.entity_list[self.food_type]:
                     nearby_targets.add(target)
             if nearby_targets:
                 for target in nearby_targets:
                     dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                    possible_targets.append([dist, target])
+                    possible_targets.append((dist, target))
             if possible_targets:
                 possible_targets = sorted(possible_targets)
                 target_object = possible_targets[0][1]
@@ -71,7 +71,7 @@ class Organism(entity.Entity):
 
         # too far away, just pick one at random
         if target_object is None:
-            target_object = random.choice(list(self.current_room.entity_list[coin.Coin]))
+            target_object = random.choice(list(self.current_room.entity_list[self.food_type]))
 
         assert target_object is not None
         return target_object

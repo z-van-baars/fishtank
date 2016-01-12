@@ -22,6 +22,7 @@ class Goblin(organism.Organism):
         self.change_y = 0
         self.age = 0
         self.ticks_without_food = 0
+        self.food_type = coin.Coin
 
     def safety(self, current_room):
         center_x = self.rect.x + 7

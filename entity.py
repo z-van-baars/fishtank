@@ -16,24 +16,29 @@ class Entity(pygame.sprite.Sprite):
         self.current_room = current_room
         self.neighbors = None
 
+    def __lt__(self, other):
+        if self.rect.x < other.rect.x:
+            return True
+        elif self.rect.y < other.rect.y:
+            return True
+        else:
+            return False
+
+
     def expire(self):
         self.current_room.entity_list[type(self)].remove(self)
         self.current_chunk.entity_list[type(self)].remove(self)
 
     def place_in_chunk(self, current_room):
-        row_no = 0
         for row in range(len(current_room.chunks)):
-            column_no = 0
             for column in range(len(current_room.chunks[row])):
                 this_chunk = current_room.chunks[row][column]
                 if this_chunk.left <= self.rect.x and self.rect.x <= this_chunk.right:
                     if this_chunk.top <= self.rect.y and self.rect.y <= this_chunk.bottom:
                         this_chunk.entity_list[type(self)].add(self)
-                        self.current_chunk_row = row_no
-                        self.current_chunk_column = column_no
+                        self.current_chunk_row = row
+                        self.current_chunk_column = column
                         self.current_chunk = this_chunk
-                column_no += 1
-            row_no += 1
         assert self.current_chunk
 
         self.neighbors = (self.get_valid_neighbors(self.current_chunk_row, self.current_chunk_column))

@@ -19,6 +19,7 @@ class Ogre(organism.Organism):
         self.change_y = 0
         self.age = 0
         self.ticks_without_food = 0
+        self.food_type = goblin.Goblin
 
     def dead(self):
         if self.age > 2000:
@@ -79,45 +80,10 @@ class Ogre(organism.Organism):
                     self.rect.top = item.rect.bottom
 
 
-    # overrides... but should it?
-    def pick_target(self, current_room):
-        target_object = None
-        current_chunk = self.current_chunk
-        neighbors = self.neighbors
-        
-        def look_near_me(neighbors, current_chunk):
-            possible_targets = []
-            nearby_targets = []
-            nearby_targets = current_chunk.entity_list[goblin.Goblin]
-            for chunk in neighbors:
-                for target in chunk.entity_list[goblin.Goblin]:
-                    nearby_targets.add(target)
-            if nearby_targets:
-                for target in nearby_targets:
-                    dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                    possible_targets.append([dist, target])
-            if possible_targets:
-                possible_targets = sorted(possible_targets)
-                target_object = possible_targets[0][1]
-                return target_object
-            else:
-                return None
-
-        target_object = look_near_me(neighbors, current_chunk)
-
-        # too far away, just pick one at random
-        if not target_object:
-            target_object = random.choice(list(self.current_room.entity_list[goblin.Goblin]))
-
-        assert target_object is not None
-        return target_object
-
-
     def chase(self, current_room):
         if self.target_goblin is None or \
            self.target_goblin not in current_room.entity_list[goblin.Goblin]:
-            self.target_goblin = self.pick_target(self.current_room)
-        print(self.target_goblin)
+            self.target_goblin = self.pick_target(self.neighbors, self.current_chunk_row, self.current_chunk_column)
 
         prey_x = self.target_goblin.rect.x
         prey_y = self.target_goblin.rect.y
