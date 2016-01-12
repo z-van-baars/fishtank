@@ -48,34 +48,23 @@ class Organism(entity.Entity):
             self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
 
+    def pick_target(self, neighbors):
+        nearby_targets = self.current_chunk.entity_list[self.food_type]
+        for chunk in neighbors:
+            for target in chunk.entity_list[self.food_type]:
+                nearby_targets.add(target)
 
-    def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
-        target_object = None
-        current_chunk = self.current_chunk
-
-        def look_near_me(neighbors, current_chunk):
-            possible_targets = []
-            nearby_targets = []
-            nearby_targets = current_chunk.entity_list[self.food_type]
-            for chunk in neighbors:
-                for target in chunk.entity_list[self.food_type]:
-                    nearby_targets.add(target)
-            if nearby_targets:
-                for target in nearby_targets:
-                    dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
-                    possible_targets.append((dist, target))
-            if possible_targets:
-                possible_targets = sorted(possible_targets)
-                target_object = possible_targets[0][1]
-                return target_object
+        targets_to_sort = []
+        for target in nearby_targets:
+            dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
+            targets_to_sort.append((dist, target))
+            
+        possible_targets = sorted(targets_to_sort)
+        if possible_targets:
+            return possible_targets[0][1]
+        else:
+            far_afield = list(self.current_room.entity_list[self.food_type])
+            if far_afield:
+                return random.choice(far_afield)
             else:
                 return None
-
-        target_object = look_near_me(neighbors, current_chunk)
-
-        # too far away, just pick one at random
-        if target_object is None:
-            target_object = random.choice(list(self.current_room.entity_list[self.food_type]))
-
-        assert target_object is not None
-        return target_object
