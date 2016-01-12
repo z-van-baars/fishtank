@@ -95,11 +95,11 @@ class Room1(Room):
         if len(self.entity_list[coin.Coin]) < 60:
             self.spawn_coins(30)
 
-        for ogre in self.entity_list[ogre.Ogre]:
-            ogre.do_thing()
+        for each in self.entity_list[ogre.Ogre]:
+            each.do_thing()
 
-        for goblin in self.entity_list[goblin.Goblin]:
-            goblin.do_thing()
+        for each in self.entity_list[goblin.Goblin]:
+            each.do_thing()
 
     def spawn_coins(self, num_coins):
         for each in range(num_coins):

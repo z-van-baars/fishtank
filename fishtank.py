@@ -14,9 +14,9 @@ import room
 # - Switch to vectors rather than X Y values
 
 
-def graph_pop(screen, screen_height, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
-    goblin_pop = len(current_room.goblins)
-    ogre_pop = len(current_room.ogres)
+def graph_pop(screen, screen_height, screen_width, time, current_room, goblin_pop_ticker, ogre_pop_ticker):
+    goblin_pop = len(current_room.entity_list[goblin.Goblin])
+    ogre_pop = len(current_room.entity_list[ogre.Ogre])
     goblin_pop = round(goblin_pop / 2)
     ogre_pop = round(ogre_pop)
     graph_time = round(time / 60)
@@ -87,7 +87,8 @@ def main():
         graph_pop(screen, screen_height, screen_width, time, current_room, goblin_pop_ticker, ogre_pop_ticker)
         screen.blit(tank_bg, [0, 0])
         for key in current_room.entity_list:
-            key.draw(screen)
+            for item in current_room.entity_list[key]:
+                item.draw(screen)
 
         # debug function draws all goblins in every chunk
         # for row in range(len(current_room.chunk_rows)):

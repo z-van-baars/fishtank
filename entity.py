@@ -49,21 +49,21 @@ class Entity(pygame.sprite.Sprite):
             if current_chunk_column > 0:
                 neighbors.append(chunks[current_chunk_row - 1]
                                        [current_chunk_column - 1])  # top left
-            elif current_chunk_column < (len(chunks) - 1):
+            elif current_chunk_column < (len(chunks[0]) - 1):
                 neighbors.append(chunks[current_chunk_row - 1]
                                        [current_chunk_column + 1])  # top right
 
-        elif current_chunk_row < (len(chunks[0]) - 1):
+        elif current_chunk_row < (len(chunks) - 1):
             neighbors.append(chunks[current_chunk_row + 1]
                                    [current_chunk_column])  # bottom center
             if current_chunk_column > 0:
                 neighbors.append(chunks[current_chunk_row + 1]
                                        [current_chunk_column - 1])  # bottom left
-            if current_chunk_column < (len(chunks) - 1):
+            if current_chunk_column < (len(chunks[0]) - 1):
                 neighbors.append(chunks[current_chunk_row + 1]
                                        [current_chunk_column + 1])  # bottom right
 
-        if current_chunk_column < (len(chunks) - 1):
+        if current_chunk_column < (len(chunks[0]) - 1):
             neighbors.append(chunks[current_chunk_row]
                                    [current_chunk_column + 1])  # right
 
