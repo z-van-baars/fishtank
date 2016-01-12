@@ -124,7 +124,7 @@ class Goblin(organism.Organism):
     def eat(self, current_room):
         if self.target_coin is None or \
            self.target_coin not in current_room.entity_list[coin.Coin]:
-            self.target_coin = self.pick_target(self.neighbors, self.current_chunk_row, self.current_chunk_column)
+            self.target_coin = self.pick_target(self.neighbors)
 
         target_x = self.target_coin.rect.x
         target_y = self.target_coin.rect.y

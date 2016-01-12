@@ -83,7 +83,7 @@ class Ogre(organism.Organism):
     def chase(self, current_room):
         if self.target_goblin is None or \
            self.target_goblin not in current_room.entity_list[goblin.Goblin]:
-            self.target_goblin = self.pick_target(self.neighbors, self.current_chunk_row, self.current_chunk_column)
+            self.target_goblin = self.pick_target(self.neighbors)
 
         prey_x = self.target_goblin.rect.x
         prey_y = self.target_goblin.rect.y
