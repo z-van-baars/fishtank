@@ -67,7 +67,6 @@ class Goblin(organism.Organism):
             return True
 
     def do_thing(self):
-        print(self)
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
             self.place_in_chunk(self, self.current_room)
