@@ -4,12 +4,13 @@ import pygame
 import colors
 import entity
 import utilities
+import coin
 
 
 class Organism(entity.Entity):
 
     def __init__(self, x, y, current_room, color, width, height):
-        super().__init__(self, x, y, current_room, color, width, height)
+        super().__init__(x, y, current_room, color, width, height)
 
     def do_thing(self):
         raise NotImplementedError()
@@ -35,13 +36,13 @@ class Organism(entity.Entity):
 
         chunk = self.current_chunk
         if self.rect.top < chunk.top:
-            utilities.place_in_chunk(self, current_room)
+            self.place_in_chunk(current_room)
         if self.rect.bottom > chunk.bottom:
-            utilities.place_in_chunk(self, current_room)
+            self.place_in_chunk(current_room)
         if self.rect.left < chunk.left:
-            utilities.place_in_chunk(self, current_room)
+            self.place_in_chunk(current_room)
         if self.rect.right > chunk.right:
-            utilities.place_in_chunk(self, current_room)
+            self.place_in_chunk(current_room)
 
 
     def pick_target(self, neighbors, current_chunk_row, current_chunk_column):
@@ -51,9 +52,9 @@ class Organism(entity.Entity):
         def look_near_me(neighbors, current_chunk):
             possible_targets = []
             nearby_targets = []
-            nearby_targets = current_chunk.coins_list
+            nearby_targets = current_chunk.entity_list[coin.Coin]
             for chunk in neighbors:
-                for target in chunk.coins_list:
+                for target in chunk.entity_list[coin.Coin]:
                     nearby_targets.add(target)
             if nearby_targets:
                 for target in nearby_targets:
@@ -70,7 +71,7 @@ class Organism(entity.Entity):
 
         # too far away, just pick one at random
         if target_object is None:
-            target_object = random.choice(list(self.current_room.coins_list))
+            target_object = random.choice(list(self.current_room.entity_list[coin.Coin]))
 
         assert target_object is not None
         return target_object

@@ -42,6 +42,7 @@ class Entity(pygame.sprite.Sprite):
     def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
         chunks = self.current_room.chunks
         neighbors = []
+        neighbors.append(self.current_chunk)
 
         if current_chunk_row > 0:
             neighbors.append(chunks[current_chunk_row - 1]
@@ -70,5 +71,7 @@ class Entity(pygame.sprite.Sprite):
         elif current_chunk_column > 0:
             neighbors.append(chunks[current_chunk_row]
                                    [current_chunk_column - 1])  # left
+
+        
 
         return neighbors

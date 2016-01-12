@@ -2,8 +2,6 @@ import pygame
 import random
 import colors
 import utilities
-import entity
-import organism
 import ogre
 import goblin
 import coin
@@ -67,8 +65,7 @@ class Room1(Room):
         ]
 
         for each in walls:
-            print(each)
-            self.entity_list[wall.Wall].add(wall.Wall(*each))
+            self.entity_list[wall.Wall].add(wall.Wall(each[0], each[1], each[2], each[3], each[4], each[5]))
 
     def create_chunks(self, tank_width, tank_height, num_cols, num_rows):
         if tank_width % num_cols != 0 or tank_height % num_rows != 0:
@@ -87,8 +84,8 @@ class Room1(Room):
                           chunk_width, chunk_height))
             self.chunks.append(curr_row)
 
-        utilities.log(len(self.chunks))
-        utilities.log(len(self.chunks[0]))
+        # utilities.log(len(self.chunks))
+        # utilities.log(len(self.chunks[0]))
 
 
     def update(self):

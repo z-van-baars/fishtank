@@ -3,11 +3,13 @@ import random
 import math
 import statistics
 import organism
-import goblin
-import ogre
 import utilities
 import colors
 import room
+import coin
+import goblin
+import ogre
+
 
 # To Do
 # =====
@@ -70,14 +72,13 @@ def main():
                 if event.key == pygame.K_RETURN:
                     coordin = utilities.spawn_org()
                     new_goblin = goblin.Goblin(coordin[0], coordin[1], current_room)
-                    utilities.place_in_chunk(new_goblin, current_room)
+                    new_goblin.place_in_chunk(current_room)
                     current_room.entity_list[type(new_goblin)].add(new_goblin)
 
                 elif event.key == pygame.K_o:
                     coordin = utilities.spawn_org()
                     new_ogre = ogre.Ogre(coordin[0], coordin[1], current_room)
-                    utilities.place_in_chunk(new_ogre, current_room)
-                    new_ogre.pick_target(current_room)
+                    new_ogre.place_in_chunk(current_room)
                     current_room.entity_list[type(new_ogre)].add(new_ogre)
 
                 elif event.key == pygame.K_SPACE:
@@ -86,9 +87,9 @@ def main():
         current_room.update()
         graph_pop(screen, screen_height, screen_width, time, current_room, goblin_pop_ticker, ogre_pop_ticker)
         screen.blit(tank_bg, [0, 0])
-        for key in current_room.entity_list:
-            for item in current_room.entity_list[key]:
-                item.draw(screen)
+        current_room.entity_list[coin.Coin].draw(screen)
+        for group in current_room.entity_list:
+            current_room.entity_list[group].draw(screen)
 
         # debug function draws all goblins in every chunk
         # for row in range(len(current_room.chunk_rows)):
