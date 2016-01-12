@@ -76,11 +76,11 @@ class Room1(Room):
         chunk_height = tank_height / num_rows
 
         self.chunks = []
-        for ii in range(num_cols):
+        for ii in range(num_rows):
             curr_row = []
-            for jj in range(num_rows):
+            for jj in range(num_cols):
                 curr_row.append(
-                    Chunk(ii * chunk_width, jj * chunk_height,
+                    Chunk(jj * chunk_width, ii * chunk_height,
                           chunk_width, chunk_height))
             self.chunks.append(curr_row)
 
@@ -106,5 +106,5 @@ class Room1(Room):
 
             self.entity_list[coin.Coin].add(cc)
             cc.place_in_chunk(self)
-            
+
             

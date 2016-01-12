@@ -45,15 +45,13 @@ class Entity(pygame.sprite.Sprite):
     def get_valid_neighbors(self, current_chunk_row, current_chunk_column):
         chunks = self.current_room.chunks
         neighbors = []
-        neighbors.append(self.current_chunk)
-        print(current_chunk_row)
-        print(current_chunk_column)
 
         valid_chunks = [
             [True, True, True],
             [True, True, True],
             [True, True, True],
             ]
+
 
         # if you're in the top row of chunks
         if current_chunk_row == 0:
@@ -68,35 +66,35 @@ class Entity(pygame.sprite.Sprite):
             valid_chunks[2][0] = False
 
         # if you're in the last column
-        if current_chunk_column == len(chunks[0]):
+        if current_chunk_column == (len(chunks[0]) -1):
             valid_chunks[0][2] = False
             valid_chunks[1][2] = False
             valid_chunks[2][2] = False
 
         # if you're in the bottom column
-        if current_chunk_row == len(chunks):
+        if current_chunk_row == (len(chunks) - 1):
             valid_chunks[2][0] = False
             valid_chunks[2][1] = False
             valid_chunks[2][2] = False
 
         if valid_chunks[0][0]:
-            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column - 1])
+            neighbors.append((chunks[current_chunk_row - 1][current_chunk_column - 1]))
         if valid_chunks[0][1]:
-            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column])
+            neighbors.append((chunks[current_chunk_row - 1][current_chunk_column]))
         if valid_chunks[0][2]:
-            neighbors.append(chunks[current_chunk_row - 1][current_chunk_column + 1])
+            neighbors.append((chunks[current_chunk_row - 1][current_chunk_column + 1]))
         if valid_chunks[1][0]:
-            neighbors.append(chunks[current_chunk_row][current_chunk_column - 1])
+            neighbors.append((chunks[current_chunk_row][current_chunk_column - 1]))
         if valid_chunks[1][1]:
-            neighbors.append(chunks[current_chunk_row][current_chunk_column])
+            neighbors.append((chunks[current_chunk_row][current_chunk_column]))
         if valid_chunks[1][2]:
-            neighbors.append(chunks[current_chunk_row][current_chunk_column + 1])
+            neighbors.append((chunks[current_chunk_row][current_chunk_column + 1]))
         if valid_chunks[2][0]:
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column - 1])
+            neighbors.append((chunks[current_chunk_row + 1][current_chunk_column - 1]))
         if valid_chunks[2][1]:
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column])
+            neighbors.append((chunks[current_chunk_row + 1][current_chunk_column]))
         if valid_chunks[2][2]:
-            neighbors.append(chunks[current_chunk_row + 1][current_chunk_column + 1])
+            neighbors.append((chunks[current_chunk_row + 1][current_chunk_column + 1]))
 
 
         return neighbors
