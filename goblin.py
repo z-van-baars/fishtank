@@ -152,7 +152,7 @@ class Goblin(organism.Organism):
             neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[coin.Coin], True))
             coin_hit_list = coin_hit_list + neighbor_hit_list
         for each in coin_hit_list:
-            each.expire()
+            each.kill()
             self.coins_collected += 1
             self.lifetime_coins += 1
             self.ticks_without_food = 0

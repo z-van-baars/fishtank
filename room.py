@@ -103,5 +103,8 @@ class Room1(Room):
             coin_x = random.randrange(30, 770)
             coin_y = random.randrange(30, 570)
             cc = coin.Coin(coin_x, coin_y, self)
+
             self.entity_list[coin.Coin].add(cc)
             cc.place_in_chunk(self)
+            
+            
