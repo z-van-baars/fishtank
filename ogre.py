@@ -6,11 +6,19 @@ import goblin
 import organism
 import wall
 
+pygame.init()
+pygame.display.set_caption("There's always a bigger fish")
+screen_width = 800
+screen_height = 800
+screen = pygame.display.set_mode([screen_width, screen_height])
+ogre_img = pygame.image.load("art/ogre.png")
+ogre_img.set_colorkey(colors.key)
 
 class Ogre(organism.Organism):
 
     def __init__(self, x, y, current_room):
         super().__init__(x, y, current_room, colors.red, 20, 20)
+        self.image = ogre_img
         self.target_goblin = None
         self.speed = 3
         self.goblins_eaten = 0

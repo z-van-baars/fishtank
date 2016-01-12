@@ -6,12 +6,22 @@ import ogre
 import coin
 import wall
 
+pygame.init()
+pygame.display.set_caption("There's always a bigger fish")
+screen_width = 800
+screen_height = 800
+screen = pygame.display.set_mode([screen_width, screen_height])
+
+goblin_img = pygame.image.load("art/goblin.png").convert()
+goblin_img.set_colorkey(colors.key)
+
 
 class Goblin(organism.Organism):
 
 
     def __init__(self, x, y, current_room):
         super().__init__(x, y, current_room, colors.green, 15, 15)
+        self.image = goblin_img
         self.speed = 2
         self.coins_collected = 0
         self.lifetime_coins = 0

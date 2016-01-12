@@ -28,12 +28,11 @@ def graph_pop(screen, screen_height, screen_width, time, current_room, goblin_po
 
 def main():
     pygame.init()
-
     pygame.display.set_caption("There's always a bigger fish")
-
     screen_width = 800
     screen_height = 800
     screen = pygame.display.set_mode([screen_width, screen_height])
+    background = pygame.image.load("art/grass_bg.png").convert()
     tank_width = screen_width
     tank_height = screen_height - 200
     rooms = [room.Room1(tank_width, tank_height, 8, 6)]
