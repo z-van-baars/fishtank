@@ -85,8 +85,8 @@ class Goblin(organism.Organism):
         self.ticks_without_food += 1
 
         if not self.dead():
-            self.safety(self.current_room)
             self.eat(self.current_room)
+            self.safety(self.current_room)
             self.move(self.current_room, self.current_chunk)
             if self.coins_collected > 15:
                 self.reproduce(self.current_room)
