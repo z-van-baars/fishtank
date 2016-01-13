@@ -1,5 +1,6 @@
 import pygame
 import utilities
+import random
 import colors
 import organism
 import ogre
@@ -73,14 +74,14 @@ class Goblin(organism.Organism):
         self.target_coin = self.pick_target(self.neighbors, self.current_room)
 
     def dead(self):
-        if self.age > 2000:
+        if self.age > 3000:
             self.current_room.age_deaths += 1
             utilities.log("a goblin died of old age")
             self.current_room.coins_on_death.append(self.lifetime_coins)
             self.current_room.death_ages.append(self.age)
             self.expire()
             return True
-        elif self.ticks_without_food > 400:
+        elif self.ticks_without_food > 1000:
             self.current_room.starvation_deaths += 1
             utilities.log("a goblin died of starvation")
             self.current_room.coins_on_death.append(self.lifetime_coins)
@@ -140,6 +141,8 @@ class Goblin(organism.Organism):
             else:
                 if self.current_room.entity_list[coin.Coin]:
                     self.eat(self.current_room)
+                else:
+                    self.idle()
             self.safety(self.current_room)
             self.move(self.current_room, self.current_chunk)
 
@@ -193,6 +196,20 @@ class Goblin(organism.Organism):
         new_goblin.check_bound(current_room)
         new_goblin.place_in_chunk(current_room)
         current_room.entity_list[Goblin].add(new_goblin)
+
+    def idle(self):
+        action = random.randint(0, 800)
+        if action <= 10:
+            self.change_x = (self.speed / 2)
+        elif 10 < action <= 20:
+            self.change_x = -(self.speed / 2)
+        elif 20 < action <= 30:
+            self.change_y = (self.speed / 2)
+        elif 30 < action <= 40:
+            self.change_y = -(self.speed / 2)
+        elif action > 750:
+            self.change_x = 0
+            self.change_y = 0
 
     def eat(self, current_room):
         if self.target_coin is None or \

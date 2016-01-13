@@ -139,12 +139,33 @@ class Ogre(organism.Organism):
                 self.change_x = changes[0]
                 self.change_y = changes[1]
             else:
-                self.change_y = 0
-                self.change_x = 0
+                action = random.randint(0, 800)
+                if action <= 10:
+                    self.change_x = (self.speed / 2)
+                elif 10 < action <= 20:
+                    self.change_x = -(self.speed / 2)
+                elif 20 < action <= 30:
+                    self.change_y = (self.speed / 2)
+                elif 30 < action <= 40:
+                    self.change_y = -(self.speed / 2)
+                elif action > 750:
+                    self.change_x = 0
+                    self.change_y = 0
         if self.home_hut:
             go_home(self, self.home_hut.rect.x, self.home_hut.rect.y)
         else:
-            pass
+            action = random.randint(0, 800)
+            if action <= 10:
+                self.change_x = (self.speed / 2)
+            elif 10 < action <= 20:
+                self.change_x = -(self.speed / 2)
+            elif 20 < action <= 30:
+                self.change_y = (self.speed / 2)
+            elif 30 < action <= 40:
+                self.change_y = -(self.speed / 2)
+            elif action > 750:
+                self.change_x = 0
+                self.change_y = 0
 
     def chase(self, current_room):
         changes = utilities.get_vector(self, self.target_goblin.rect.x + 7, self.target_goblin.rect.y + 7, self.rect.x + 10, self.rect.y + 10)
