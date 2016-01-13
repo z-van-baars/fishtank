@@ -140,7 +140,9 @@ class Goblin(organism.Organism):
            self.target_coin not in current_room.entity_list[coin.Coin]:
             self.target_coin = self.pick_target(self.neighbors)
 
-        utilities.get_vector(self, self.target_coin.rect.x + 2, self.target_coin.rect.y + 2, self.rect.x + 7, self.rect.y + 7)
+        changes = utilities.get_vector(self, self.target_coin.rect.x + 2, self.target_coin.rect.y + 2, self.rect.x + 7, self.rect.y + 7)
+        self.change_x = changes[0]
+        self.change_y = changes[1]
         # pygame.sprite.spritecollide(self, self.current_room.entity_list[coin.Coin], True)
         coin_hit_list = []
         coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.entity_list[coin.Coin], True)

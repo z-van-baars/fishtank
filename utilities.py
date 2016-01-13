@@ -43,31 +43,60 @@ def get_vector(self, a, b, x, y):
     dist_x = abs(a - x)
     dist_y = abs(b - y)
 
-    if dist_x > dist_y:
-        if a > x:
-            self.change_x = self.speed
-        elif a < x:
-            self.change_x = -self.speed
-        else:
-            self.change_y = 0
+    top = (0, -self.speed)
+    bottom = (0, self.speed)
+    right = (self.speed, 0)
+    left = (-self.speed, 0)
+    top_left = ((self.speed * -0.25), (self.speed * -0.75))
+    top_right = ((self.speed * 0.25), (self.speed * -0.75))
+    right_top = ((self.speed * 0.75), (self.speed * -0.25))
+    right_bottom = ((self.speed * 0.75), (self.speed * 0.25))
+    bottom_left = ((self.speed * -0.25), (self.speed * 0.75))
+    bottom_right = ((self.speed * 0.25), (self.speed * 0.75))
+    left_top = ((self.speed * -0.75), (self.speed * -0.25))
+    left_bottom = ((self.speed * -0.75), (self.speed * 0.25))
 
-    elif dist_x < dist_y:
-        if b > y:
-            self.change_y = self.speed
-        elif b < y:
-            self.change_y = -self.speed
-        else:
-            self.change_x = 0
+    if a > x:
+        if dist_x > dist_y:
+            if b == y:
+                return right
+            elif b < y:
+                return right_top
+            elif b > y:
+                return right_bottom
+        elif dist_x < dist_y:
+            if b < y:
+                return top_right
+            elif b > y:
+                return bottom_right
+        elif dist_x == dist_y:
+            if b > y:
+                return ((self.speed * 0.5), (self.speed * 0.5))
+            if b < y:
+                return ((self.speed * 0.5), (self.speed * -0.5))
+    elif a < x:
+        if dist_x > dist_y:
+            if b == y:
+                return left
+            elif b < y:
+                return left_top
+            elif b > y:
+                return left_bottom
+        elif dist_x < dist_y:
+            if b < y:
+                return top_left
+            elif b > y:
+                return bottom_left
+        elif dist_x == dist_y:
+            if b > y:
+                return ((self.speed * -0.5), (self.speed * -0.5))
+            if b < y:
+                return ((self.speed * -0.5), (self.speed * 0.5))
+
     else:
-        if a > x:
-            self.change_x = round(self.speed / 2)
-        elif a < x:
-            self.change_x = -round(self.speed / 2)
+        if b < y:
+            return top
+        elif b > y:
+            return bottom
         else:
-            self.change_x = 0
-        if b > y:
-            self.change_y = round(self.speed / 2)
-        elif b < y:
-            self.change_y = -round(self.speed / 2)
-        else:
-            self.change_y = 0
+            return (0, 0)

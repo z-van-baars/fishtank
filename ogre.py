@@ -116,7 +116,9 @@ class Ogre(organism.Organism):
 
             home_dist = utilities.distance((home_x + 20), (home_y + 15), self.rect.x, self.rect.y)
             if home_dist > 100:
-                utilities.get_vector(self, self.home_hut.rect.x + 20, self.home_hut.rect.y + 15, self.rect.x + 10, self.rect.y + 10)
+                changes = utilities.get_vector(self, self.home_hut.rect.x + 20, self.home_hut.rect.y + 15, self.rect.x + 10, self.rect.y + 10)
+                self.change_x = changes[0]
+                self.change_y = changes[1]
             else:
                 self.change_y = 0
                 self.change_x = 0
@@ -130,7 +132,9 @@ class Ogre(organism.Organism):
            self.target_goblin not in current_room.entity_list[goblin.Goblin]:
             self.target_goblin = self.pick_target(self.neighbors)
 
-        utilities.get_vector(self, self.target_goblin.rect.x + 7, self.target_goblin.rect.y + 7, self.rect.x + 10, self.rect.y + 10)
+        changes = utilities.get_vector(self, self.target_goblin.rect.x + 7, self.target_goblin.rect.y + 7, self.rect.x + 10, self.rect.y + 10)
+        self.change_x = changes[0]
+        self.change_y = changes[1]
         goblin_hit_list = []
         for each in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[goblin.Goblin], True))
