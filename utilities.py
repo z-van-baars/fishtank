@@ -38,3 +38,36 @@ def gen_ogre_genes():
     return 3
 
 
+def get_vector(self, a, b, x, y):
+
+    dist_x = abs(a - x)
+    dist_y = abs(b - y)
+
+    if dist_x > dist_y:
+        if a > x:
+            self.change_x = self.speed
+        elif a < x:
+            self.change_x = -self.speed
+        else:
+            self.change_y = 0
+
+    elif dist_x < dist_y:
+        if b > y:
+            self.change_y = self.speed
+        elif b < y:
+            self.change_y = -self.speed
+        else:
+            self.change_x = 0
+    else:
+        if a > x:
+            self.change_x = round(self.speed / 2)
+        elif a < x:
+            self.change_x = -round(self.speed / 2)
+        else:
+            self.change_x = 0
+        if b > y:
+            self.change_y = round(self.speed / 2)
+        elif b < y:
+            self.change_y = -round(self.speed / 2)
+        else:
+            self.change_y = 0

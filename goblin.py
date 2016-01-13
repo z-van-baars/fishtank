@@ -131,7 +131,6 @@ class Goblin(organism.Organism):
     def reproduce(self, current_room):
         self.coins_collected = 0
         new_goblin = Goblin(self.rect.x + 17, self.rect.y, current_room)
-        
         new_goblin.check_bound(current_room)
         new_goblin.place_in_chunk(current_room)
         current_room.entity_list[Goblin].add(new_goblin)
@@ -141,25 +140,7 @@ class Goblin(organism.Organism):
            self.target_coin not in current_room.entity_list[coin.Coin]:
             self.target_coin = self.pick_target(self.neighbors)
 
-        target_x = self.target_coin.rect.x
-        target_y = self.target_coin.rect.y
-
-        # x vector
-        if (target_x + 2) > (self.rect.x + 7):
-            self.change_x = self.speed
-        elif (target_x + 2) < (self.rect.x + 7):
-            self.change_x = -self.speed
-        else:
-            self.change_x = 0
-
-        # y vector
-        if (target_y + 2) > (self.rect.y + 7):
-            self.change_y = self.speed
-        elif (target_y + 2) < (self.rect.y + 7):
-            self.change_y = -self.speed
-        else:
-            self.change_y = 0
-
+        utilities.get_vector(self, self.target_coin.rect.x + 2, self.target_coin.rect.y + 2, self.rect.x + 7, self.rect.y + 7)
         # pygame.sprite.spritecollide(self, self.current_room.entity_list[coin.Coin], True)
         coin_hit_list = []
         coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.entity_list[coin.Coin], True)
