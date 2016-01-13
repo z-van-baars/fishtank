@@ -39,6 +39,18 @@ def gen_ogre_genes():
 
 
 def get_vector(self, a, b, x, y):
+    distance_to_target = distance(a, b, x, y)
+    factor = distance_to_target / self.speed
+    x_dist = a - x
+    y_dist = b - y
+    change_x = x_dist / factor
+    change_y = y_dist / factor
+    change_x = round(change_x)
+    change_y = round(change_y)
+    return (change_x, change_y)
+
+
+def get_vector_old(self, a, b, x, y):
 
     dist_x = abs(a - x)
     dist_y = abs(b - y)

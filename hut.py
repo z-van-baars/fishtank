@@ -18,4 +18,3 @@ class Hut(entity.Entity):
     def __init__(self, x, y, current_room):
         super().__init__((x - 20), (y - 15), current_room, colors.white, 40, 30)
         self.image = hut_img
-        
