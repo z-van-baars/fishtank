@@ -6,7 +6,9 @@ import ogre
 import hut
 import goblin
 import coin
+import pit
 import wall
+
 
 class Chunk():
 
@@ -21,6 +23,8 @@ class Chunk():
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
         self.entity_list[wall.Wall] = pygame.sprite.Group()
         self.entity_list[hut.Hut] = pygame.sprite.Group()
+        self.entity_list[pit.Pit] = pygame.sprite.Group()
+
 
 class Room(object):
 
@@ -36,6 +40,7 @@ class Room(object):
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
         self.entity_list[wall.Wall] = pygame.sprite.Group()
         self.entity_list[hut.Hut] = pygame.sprite.Group()
+        self.entity_list[pit.Pit] = pygame.sprite.Group()
         # goblins stats
         self.starvation_deaths = 0
         self.age_deaths = 0
@@ -90,7 +95,6 @@ class Room1(Room):
         # utilities.log(len(self.chunks))
         # utilities.log(len(self.chunks[0]))
 
-
     def update(self):
         if len(self.entity_list[coin.Coin]) < 60:
             self.spawn_coins(30)
@@ -100,6 +104,10 @@ class Room1(Room):
 
         for each in self.entity_list[goblin.Goblin]:
             each.do_thing()
+
+        for each in self.entity_list[pit.Pit]:
+            if each.coins > 15:
+                each.spawn_goblin()
 
     def spawn_coins(self, num_coins):
         for each in range(num_coins):

@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 import statistics
-import organism
 import utilities
 import colors
 import room
@@ -10,6 +9,7 @@ import coin
 import goblin
 import ogre
 import hut
+import pit
 
 
 # To Do
@@ -55,8 +55,8 @@ def main():
     tank_bg.fill(colors.black)
 
     current_item_to_place = 0
-    possible_items_to_place = {0: goblin.Goblin, 1: ogre.Ogre, 2: coin.Coin, 3: hut.Hut}
-    possible_item_strings = {0: "Goblin", 1: "Ogre", 2: "Coin", 3: "Hut"}
+    possible_items_to_place = {0: goblin.Goblin, 1: ogre.Ogre, 2: coin.Coin, 3: hut.Hut, 4: pit.Pit}
+    possible_item_strings = {0: "Goblin", 1: "Ogre", 2: "Coin", 3: "Hut", 4: "Pit"}
 
     done = False
     while not done:
@@ -98,10 +98,10 @@ def main():
                     if current_item_to_place != 0:
                         current_item_to_place -= 1
                     else:
-                        current_item_to_place = 3
+                        current_item_to_place = 4
 
                 elif event.key == pygame.K_DOWN:
-                    if current_item_to_place != 3:
+                    if current_item_to_place != 4:
                         current_item_to_place += 1
                     else:
                         current_item_to_place = 0

@@ -6,7 +6,6 @@ import entity
 import utilities
 import coin
 
-
 class Organism(entity.Entity):
 
     def __init__(self, x, y, current_room, color, width, height):

@@ -6,6 +6,7 @@ import ogre
 import coin
 import wall
 import hut
+import pit
 
 pygame.init()
 pygame.display.set_caption("There's always a bigger fish")
@@ -34,6 +35,7 @@ class Goblin(organism.Organism):
         self.age = 0
         self.ticks_without_food = 0
         self.food_type = coin.Coin
+        self.pit = None
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -50,6 +52,14 @@ class Goblin(organism.Organism):
                 if predator_x_pos < safety_right and predator_x_pos > safety_left:
                     if predator_y_pos > safety_top and predator_y_pos < safety_bottom:
                         self.run(current_room, center_x, center_y, predator_x_pos, predator_y_pos)
+
+    def find_pit(self):
+        possible_homes = []
+        for possible_home in self.current_room.entity_list[pit.Pit]:
+            home_dist = utilities.distance(possible_home.rect.x, possible_home.rect.y, self.rect.x, self.rect.y)
+            possible_homes.append((home_dist, possible_home))
+        possible_homes = sorted(possible_homes)
+        self.pit = possible_homes[0][1]
 
     def run(self, current_room, center_x, center_y, predator_x_pos, predator_y_pos):
         if predator_x_pos < center_x:
@@ -69,7 +79,7 @@ class Goblin(organism.Organism):
             self.current_room.death_ages.append(self.age)
             self.expire()
             return True
-        elif self.ticks_without_food > 300:
+        elif self.ticks_without_food > 400:
             self.current_room.starvation_deaths += 1
             utilities.log("a goblin died of starvation")
             self.current_room.coins_on_death.append(self.lifetime_coins)
@@ -77,31 +87,74 @@ class Goblin(organism.Organism):
             self.expire()
             return True
 
+    def go_home(self):
+        home_x = self.pit.rect.x + 15
+        home_y = self.pit.rect.y + 15
+
+        home_dist = utilities.distance((home_x), (home_y), self.rect.x, self.rect.y)
+        if home_dist > 38:
+            changes = utilities.get_vector(self, home_x, home_y, self.rect.x + 10, self.rect.y + 10)
+            self.change_x = changes[0]
+            self.change_y = changes[1]
+        else:
+            self.give_coins()
+
+        self.coin_pickup(self.current_room)
+
+    def give_coins(self):
+        self.pit.coins += self.coins_collected
+        self.pit.lifetime_coins += self.coins_collected
+        self.coins_collected = 0
+        self.ticks_without_food = 0
+        self.change_x = 0
+        self.change_y = 0
+
+    def coin_pickup(self, current_room):
+
+        coin_hit_list = []
+        coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.entity_list[coin.Coin], True)
+        for each in self.neighbors:
+            neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[coin.Coin], True))
+            coin_hit_list = coin_hit_list + neighbor_hit_list
+        for each in coin_hit_list:
+            each.kill()
+            self.coins_collected += 1
+            self.lifetime_coins += 1
+            self.ticks_without_food = 0
+
     def do_thing(self):
         if self.current_chunk_row is None or \
            self.current_chunk_column is None:
             self.place_in_chunk(self, self.current_room)
+        if self.pit is None:
+            if self.current_room.entity_list[pit.Pit]:
+                self.find_pit()
 
         self.age += 1
         self.ticks_without_food += 1
 
         if not self.dead():
-            self.eat(self.current_room)
+            if self.coins_collected < 10:
+                self.eat(self.current_room)
+            elif self.coins_collected >= 10 and self.pit:
+                self.go_home()
             self.safety(self.current_room)
             self.move(self.current_room, self.current_chunk)
-            if self.coins_collected > 15:
-                self.reproduce(self.current_room)
 
     def collide_x(self, current_room, current_chunk):
         # pygame.sprite.spritecollide(self, current_room.entity_list[Goblin], False)
         goblin_hit_list = []
+        pit_hit_list = []
+        hut_hit_list = []
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         for neighbor in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.entity_list[Goblin], False))
-            goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            goblin_hit_list += neighbor_hit_list
             neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[hut.Hut], False)
-            goblin_hit_list = goblin_hit_list + neighbor_hit_list
-        hit_lists = (wall_hit_list, goblin_hit_list)
+            goblin_hit_list += neighbor_hit_list
+            neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[pit.Pit], False)
+            pit_hit_list += neighbor_hit_list
+        hit_lists = (wall_hit_list, goblin_hit_list, hut_hit_list, pit_hit_list)
 
         for hit_list in hit_lists:
             for item in hit_list:
@@ -113,13 +166,17 @@ class Goblin(organism.Organism):
     def collide_y(self, current_room, current_chunk):
         # pygame.sprite.spritecollide(self, current_room.entity_list[Goblin], False)
         goblin_hit_list = []
+        hut_hit_list = []
+        pit_hit_list = []
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         for neighbor in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.entity_list[Goblin], False))
-            goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            goblin_hit_list + neighbor_hit_list
             neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[hut.Hut], False)
-            goblin_hit_list = goblin_hit_list + neighbor_hit_list
-        hit_lists = (wall_hit_list, goblin_hit_list)
+            hut_hit_list + neighbor_hit_list
+            neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[pit.Pit], False)
+            pit_hit_list += neighbor_hit_list
+        hit_lists = (wall_hit_list, goblin_hit_list, hut_hit_list, pit_hit_list)
 
         for hit_list in hit_lists:
             for item in hit_list:
@@ -144,13 +201,4 @@ class Goblin(organism.Organism):
         self.change_x = changes[0]
         self.change_y = changes[1]
         # pygame.sprite.spritecollide(self, self.current_room.entity_list[coin.Coin], True)
-        coin_hit_list = []
-        coin_hit_list = pygame.sprite.spritecollide(self, self.current_chunk.entity_list[coin.Coin], True)
-        for each in self.neighbors:
-            neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[coin.Coin], True))
-            coin_hit_list = coin_hit_list + neighbor_hit_list
-        for each in coin_hit_list:
-            each.kill()
-            self.coins_collected += 1
-            self.lifetime_coins += 1
-            self.ticks_without_food = 0
+        self.coin_pickup(self.current_room)
