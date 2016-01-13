@@ -58,7 +58,7 @@ class Organism(entity.Entity):
         for target in nearby_targets:
             dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
             targets_to_sort.append((dist, target))
-            
+
         possible_targets = sorted(targets_to_sort)
         if possible_targets:
             return possible_targets[0][1]

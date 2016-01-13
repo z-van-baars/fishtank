@@ -9,6 +9,7 @@ import room
 import coin
 import goblin
 import ogre
+import hut
 
 
 # To Do
@@ -32,7 +33,7 @@ def main():
     screen_width = 800
     screen_height = 800
     screen = pygame.display.set_mode([screen_width, screen_height])
-    background = pygame.image.load("art/grass_bg.png").convert()
+    background = pygame.image.load("art/stone_bg.png").convert()
     tank_width = screen_width
     tank_height = screen_height - 200
     rooms = [room.Room1(tank_width, tank_height, 8, 6)]
@@ -53,6 +54,10 @@ def main():
     tank_bg = pygame.Surface([tank_width, tank_height])
     tank_bg.fill(colors.black)
 
+    current_item_to_place = 0
+    possible_items_to_place = {0: goblin.Goblin, 1: ogre.Ogre, 2: coin.Coin, 3: hut.Hut}
+    possible_item_strings = {0: "Goblin", 1: "Ogre", 2: "Coin", 3: "Hut"}
+
     done = False
     while not done:
         goblin_counter = font.render(str(len(current_room.entity_list[goblin.Goblin])), False, colors.black)
@@ -62,10 +67,19 @@ def main():
         ogre_meals_counter = font.render(str(current_room.deaths_by_ogre), False, colors.black)
         goblin_pop_log.append(len(current_room.entity_list[goblin.Goblin]))
         ogre_pop_log.append(len(current_room.entity_list[ogre.Ogre]))
+        current_item_to_place_stamp = font.render(possible_item_strings[current_item_to_place], False, colors.black)
+        pos = pygame.mouse.get_pos()
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if 0 < pos[0] < (tank_width - 20) and 0 < pos[1] < tank_height + 20:
+                    new_item = possible_items_to_place[current_item_to_place](pos[0], pos[1], current_room)
+                    new_item.place_in_chunk(new_item.current_room)
+                    current_room.entity_list[type(new_item)].add(new_item)
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
@@ -80,12 +94,24 @@ def main():
                     new_ogre.place_in_chunk(current_room)
                     current_room.entity_list[type(new_ogre)].add(new_ogre)
 
+                elif event.key == pygame.K_UP:
+                    if current_item_to_place != 0:
+                        current_item_to_place -= 1
+                    else:
+                        current_item_to_place = 3
+
+                elif event.key == pygame.K_DOWN:
+                    if current_item_to_place != 3:
+                        current_item_to_place += 1
+                    else:
+                        current_item_to_place = 0
+
                 elif event.key == pygame.K_SPACE:
                     current_room.spawn_coins(100)
 
         current_room.update()
         graph_pop(screen, screen_height, screen_width, time, current_room, goblin_pop_ticker, ogre_pop_ticker)
-        screen.blit(tank_bg, [0, 0])
+        screen.blit(background, [0, 0])
         current_room.entity_list[coin.Coin].draw(screen)
         for group in current_room.entity_list:
             current_room.entity_list[group].draw(screen)
@@ -100,6 +126,7 @@ def main():
         screen.blit(old_age_counter, [200, 1])
         screen.blit(ogre_counter, [500, 1])
         screen.blit(ogre_meals_counter, [550, 1])
+        screen.blit(current_item_to_place_stamp, [350, 1])
         pygame.display.flip()
         clock.tick(60)
         time += 1

@@ -5,6 +5,7 @@ import colors
 import goblin
 import organism
 import wall
+import hut
 
 pygame.init()
 pygame.display.set_caption("There's always a bigger fish")
@@ -14,10 +15,11 @@ screen = pygame.display.set_mode([screen_width, screen_height])
 ogre_img = pygame.image.load("art/ogre.png")
 ogre_img.set_colorkey(colors.key)
 
+
 class Ogre(organism.Organism):
 
     def __init__(self, x, y, current_room):
-        super().__init__(x, y, current_room, colors.red, 20, 20)
+        super().__init__((x - 10), (y - 10), current_room, colors.red, 20, 20)
         self.image = ogre_img
         self.target_goblin = None
         self.speed = 3
@@ -28,6 +30,7 @@ class Ogre(organism.Organism):
         self.age = 0
         self.ticks_without_food = 0
         self.food_type = goblin.Goblin
+        self.home_hut = None
 
     def dead(self):
         if self.age > 2000:
@@ -46,6 +49,9 @@ class Ogre(organism.Organism):
             return True
 
     def do_thing(self):
+        if not self.home_hut:
+            if self.current_room.entity_list[hut.Hut]:
+                self.find_home()
         self.age += 1
         self.ticks_without_food += 1
 
@@ -53,7 +59,10 @@ class Ogre(organism.Organism):
             if self.current_chunk_row is None or \
                self.current_chunk_column is None:
                 self.place_in_chunk(self.current_room)
-            self.chase(self.current_room)
+            if self.current_room.entity_list[goblin.Goblin]:
+                self.chase(self.current_room)
+            else:
+                self.idle()
             self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
                 self.reproduce(self.current_room)
@@ -61,10 +70,13 @@ class Ogre(organism.Organism):
     def collide_x(self, current_room, current_chunk):
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         ogre_hit_list = []
+        hut_hit_list = []
         for each in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[Ogre], False))
             ogre_hit_list = ogre_hit_list + neighbor_hit_list
-        hit_lists = (wall_hit_list, ogre_hit_list)
+            neighbor_hit_list = pygame.sprite.spritecollide(self, each.entity_list[hut.Hut], False)
+            hut_hit_list = hut_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, ogre_hit_list, hut_hit_list)
 
         for hit_list in hit_lists:
             for item in hit_list:
@@ -72,13 +84,17 @@ class Ogre(organism.Organism):
                     self.rect.right = item.rect.left
                 elif self.change_x < 0 and item != self:
                     self.rect.left = item.rect.right
+
     def collide_y(self, current_room, current_chunk):
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         ogre_hit_list = []
+        hut_hit_list = []
         for each in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, each.entity_list[Ogre], False))
             ogre_hit_list = ogre_hit_list + neighbor_hit_list
-        hit_lists = (wall_hit_list, ogre_hit_list)
+            neighbor_hit_list = pygame.sprite.spritecollide(self, each.entity_list[hut.Hut], False)
+            hut_hit_list = hut_hit_list + neighbor_hit_list
+        hit_lists = (wall_hit_list, ogre_hit_list, hut_hit_list)
 
         for hit_list in hit_lists:
             for item in hit_list:
@@ -87,6 +103,34 @@ class Ogre(organism.Organism):
                 elif self.change_y < 0 and item != self:
                     self.rect.top = item.rect.bottom
 
+    def find_home(self):
+        possible_homes = []
+        for possible_home in self.current_room.entity_list[hut.Hut]:
+            home_dist = utilities.distance(possible_home.rect.x, possible_home.rect.y, self.rect.x, self.rect.y)
+            possible_homes.append((home_dist, possible_home))
+        possible_homes = sorted(possible_homes)
+        self.home_hut = possible_homes[0][1]
+
+    def idle(self):
+        def go_home(self, home_x, home_y):
+
+            home_dist = utilities.distance((home_x + 20), (home_y + 15), self.rect.x, self.rect.y)
+            if home_dist > 100:
+                if (home_x + 20) > self.rect.x:
+                    self.change_x = self.speed
+                elif (home_x + 20) < self.rect.x:
+                    self.change_x = -self.speed
+                if (home_y + 15) > self.rect.y:
+                    self.change_y = self.speed
+                elif (home_y + 15) < self.rect.y:
+                    self.change_y = -self.speed
+            else:
+                self.change_y = 0
+                self.change_x = 0
+        if self.home_hut:
+            go_home(self, self.home_hut.rect.x, self.home_hut.rect.y)
+        else:
+            pass
 
     def chase(self, current_room):
         if self.target_goblin is None or \

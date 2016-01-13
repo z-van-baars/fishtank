@@ -3,6 +3,7 @@ import random
 import colors
 import utilities
 import ogre
+import hut
 import goblin
 import coin
 import wall
@@ -19,6 +20,7 @@ class Chunk():
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
         self.entity_list[wall.Wall] = pygame.sprite.Group()
+        self.entity_list[hut.Hut] = pygame.sprite.Group()
 
 class Room(object):
 
@@ -33,6 +35,7 @@ class Room(object):
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
         self.entity_list[wall.Wall] = pygame.sprite.Group()
+        self.entity_list[hut.Hut] = pygame.sprite.Group()
         # goblins stats
         self.starvation_deaths = 0
         self.age_deaths = 0

@@ -17,6 +17,7 @@ def distance(a, b, x, y):
     c = math.sqrt((a1 * a1) + (b1 * b1))
     return c
 
+
 def spawn_org():
     coords = []
     coords.append(random.randrange(21, 779))

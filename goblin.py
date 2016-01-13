@@ -5,6 +5,7 @@ import organism
 import ogre
 import coin
 import wall
+import hut
 
 pygame.init()
 pygame.display.set_caption("There's always a bigger fish")
@@ -20,7 +21,7 @@ class Goblin(organism.Organism):
 
 
     def __init__(self, x, y, current_room):
-        super().__init__(x, y, current_room, colors.green, 15, 15)
+        super().__init__((x - 7), (y - 7), current_room, colors.green, 15, 15)
         self.image = goblin_img
         self.speed = 2
         self.coins_collected = 0
@@ -98,6 +99,8 @@ class Goblin(organism.Organism):
         for neighbor in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.entity_list[Goblin], False))
             goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[hut.Hut], False)
+            goblin_hit_list = goblin_hit_list + neighbor_hit_list
         hit_lists = (wall_hit_list, goblin_hit_list)
 
         for hit_list in hit_lists:
@@ -113,6 +116,8 @@ class Goblin(organism.Organism):
         wall_hit_list = pygame.sprite.spritecollide(self, current_room.entity_list[wall.Wall], False)
         for neighbor in self.neighbors:
             neighbor_hit_list = (pygame.sprite.spritecollide(self, neighbor.entity_list[Goblin], False))
+            goblin_hit_list = goblin_hit_list + neighbor_hit_list
+            neighbor_hit_list = pygame.sprite.spritecollide(self, neighbor.entity_list[hut.Hut], False)
             goblin_hit_list = goblin_hit_list + neighbor_hit_list
         hit_lists = (wall_hit_list, goblin_hit_list)
 
