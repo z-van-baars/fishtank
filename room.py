@@ -96,8 +96,6 @@ class Room1(Room):
         # utilities.log(len(self.chunks[0]))
 
     def update(self):
-        if len(self.entity_list[coin.Coin]) < 60:
-            self.spawn_coins(30)
 
         for each in self.entity_list[ogre.Ogre]:
             each.do_thing()

@@ -4,6 +4,7 @@ import entity
 import random
 import colors
 import goblin
+import ogre
 
 pygame.init()
 pygame.display.set_caption("There's always a bigger fish")
@@ -19,4 +20,6 @@ class Hut(entity.Entity):
     def __init__(self, x, y, current_room):
         super().__init__((x - 20), (y - 15), current_room, colors.white, 40, 30)
         self.image = hut_img
-        
+        self.entity_list = {}
+        self.entity_list[goblin.Goblin] = pygame.sprite.Group()
+        self.entity_list[ogre.Ogre] = pygame.sprite.Group()

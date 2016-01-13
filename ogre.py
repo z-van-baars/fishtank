@@ -33,14 +33,14 @@ class Ogre(organism.Organism):
         self.home_hut = None
 
     def dead(self):
-        if self.age > 2000:
+        if self.age > 20000:
             self.current_room.ogre_old_age_deaths += 1
             utilities.log("An ogre died of old age")
             self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
             self.current_room.ogre_death_ages.append(self.age)
             self.expire()
             return True
-        elif self.ticks_without_food > 300:
+        elif self.ticks_without_food > 30000:
             self.current_room.ogre_starvation_deaths += 1
             utilities.log("An Ogre died of starvation")
             self.current_room.goblins_eaten_on_death.append(self.lifetime_goblins_eaten)
@@ -54,15 +54,33 @@ class Ogre(organism.Organism):
                 self.find_home()
         self.age += 1
         self.ticks_without_food += 1
-
+        home_dist = 0
         if not self.dead():
             if self.current_chunk_row is None or \
                self.current_chunk_column is None:
                 self.place_in_chunk(self.current_room)
-            if self.current_room.entity_list[goblin.Goblin]:
-                self.chase(self.current_room)
+            if self.home_hut:
+                home_x = self.home_hut.rect.x + 20
+                home_y = self.home_hut.rect.y + 15
+                home_dist = utilities.distance(home_x, home_y, self.rect.x + 10, self.rect.y + 10)
+                if home_dist < 175:
+                    if self.current_chunk.entity_list[goblin.Goblin]:
+                        if self.target_goblin is None or self.target_goblin not in self.current_room.entity_list[goblin.Goblin]:
+                            if home_dist < 80:
+                                self.target_goblin = self.pick_target_local()
+                        else:
+                            self.chase(self.current_room)
+                    else:
+                        self.idle()
+                if home_dist >= 175:
+                    self.idle()
+                    self.target_goblin = None
             else:
-                self.idle()
+                if self.current_room.entity_list[goblin.Goblin]:
+                    self.target_goblin = self.pick_target(self.neighbors, self.current_room)
+                else:
+                    self.idle()
+
             self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
                 self.reproduce(self.current_room)
@@ -106,16 +124,17 @@ class Ogre(organism.Organism):
     def find_home(self):
         possible_homes = []
         for possible_home in self.current_room.entity_list[hut.Hut]:
-            home_dist = utilities.distance(possible_home.rect.x, possible_home.rect.y, self.rect.x, self.rect.y)
+            home_dist = utilities.distance(possible_home.rect.x + 20, possible_home.rect.y + 15, self.rect.x + 10, self.rect.y + 10)
             possible_homes.append((home_dist, possible_home))
         possible_homes = sorted(possible_homes)
         self.home_hut = possible_homes[0][1]
+        self.home_hut.entity_list[Ogre].add(self)
 
     def idle(self):
         def go_home(self, home_x, home_y):
 
-            home_dist = utilities.distance((home_x + 20), (home_y + 15), self.rect.x, self.rect.y)
-            if home_dist > 100:
+            home_dist = utilities.distance((home_x + 20), (home_y + 15), self.rect.x + 10, self.rect.y + 10)
+            if home_dist > 75:
                 changes = utilities.get_vector(self, self.home_hut.rect.x + 20, self.home_hut.rect.y + 15, self.rect.x + 10, self.rect.y + 10)
                 self.change_x = changes[0]
                 self.change_y = changes[1]
@@ -128,10 +147,6 @@ class Ogre(organism.Organism):
             pass
 
     def chase(self, current_room):
-        if self.target_goblin is None or \
-           self.target_goblin not in current_room.entity_list[goblin.Goblin]:
-            self.target_goblin = self.pick_target(self.neighbors)
-
         changes = utilities.get_vector(self, self.target_goblin.rect.x + 7, self.target_goblin.rect.y + 7, self.rect.x + 10, self.rect.y + 10)
         self.change_x = changes[0]
         self.change_y = changes[1]

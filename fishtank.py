@@ -76,7 +76,7 @@ def main():
                 done = True
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if 0 < pos[0] < (tank_width - 20) and 0 < pos[1] < tank_height + 20:
+                if 20 < pos[0] < (tank_width - 20) and 20 < pos[1] < tank_height + 20:
                     new_item = possible_items_to_place[current_item_to_place](pos[0], pos[1], current_room)
                     new_item.place_in_chunk(new_item.current_room)
                     current_room.entity_list[type(new_item)].add(new_item)

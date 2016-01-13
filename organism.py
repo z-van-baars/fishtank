@@ -47,7 +47,7 @@ class Organism(entity.Entity):
             self.current_chunk.entity_list[type(self)].remove(self)
             self.place_in_chunk(current_room)
 
-    def pick_target(self, neighbors):
+    def pick_target(self, neighbors, backup_list):
         nearby_targets = self.current_chunk.entity_list[self.food_type]
         for chunk in neighbors:
             for target in chunk.entity_list[self.food_type]:
@@ -62,8 +62,23 @@ class Organism(entity.Entity):
         if possible_targets:
             return possible_targets[0][1]
         else:
-            far_afield = list(self.current_room.entity_list[self.food_type])
+            far_afield = None
+            if backup_list is not None:
+                far_afield = list(backup_list.entity_list[self.food_type])
             if far_afield:
                 return random.choice(far_afield)
             else:
                 return None
+
+    def pick_target_local(self):
+        nearby_targets = self.current_chunk.entity_list[self.food_type]
+
+        targets_to_sort = []
+        for target in nearby_targets:
+            dist = utilities.distance(target.rect.x, target.rect.y, self.rect.x, self.rect.y)
+            targets_to_sort.append((dist, target))
+
+        possible_targets = sorted(targets_to_sort)
+        if possible_targets:
+            return possible_targets[0][1]
+
