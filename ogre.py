@@ -33,37 +33,52 @@ class Ogre(organism.Organism):
         self.home_hut = None
         self.frame = 0
 
-        self.walking_frames = []
+        self.walking_frames_r = []
+        self.walking_frames_l = []
 
         sprite_sheet = Spritesheet("art/ogre_spritesheet.png")
         # Load all the right facing images into a list
 
         image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
         image = sprite_sheet.get_image(21, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(21, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(21, 0, 20, 20)
-        self.walking_frames.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
         image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(0, 0, 20, 20)
-        self.walking_frames.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
         image = sprite_sheet.get_image(42, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(42, 0, 20, 20)
-        self.walking_frames.append(image)
-        image = sprite_sheet.get_image(42, 0, 20, 20)
-        self.walking_frames.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
 
-        self.image = self.walking_frames[self.frame]
+        image = sprite_sheet.get_image(0, 0, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(21, 0, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(0, 0, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(42, 0, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+
+        self.face = 'R'
+        self.image = self.walking_frames_r[self.frame]
 
     def dead(self):
         if self.age > 20000:
@@ -111,17 +126,30 @@ class Ogre(organism.Organism):
             else:
                 if self.current_room.entity_list[goblin.Goblin]:
                     self.target_goblin = self.pick_target(self.neighbors, self.current_room)
+                    self.chase(self.current_room)
                 else:
                     self.idle()
 
             if self.change_x == 0 and self.change_y == 0:
                 self.frame = 0
-            else:
+                if self.face == 'R':
+                    self.image = self.walking_frames_r[self.frame]
+                else:
+                    self.image = self.walking_frames_l[self.frame]
+            elif self.change_x >= 0:
+                self.face = 'R'
                 if self.frame == 11:
                     self.frame = 0
                 else:
                     self.frame += 1
-            self.image = self.walking_frames[self.frame]
+                self.image = self.walking_frames_r[self.frame]
+            elif self.change_x < 0:
+                self.face = 'L'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_l[self.frame]
 
             self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
