@@ -23,3 +23,14 @@ class Hut(entity.Entity):
         self.entity_list = {}
         self.entity_list[goblin.Goblin] = pygame.sprite.Group()
         self.entity_list[ogre.Ogre] = pygame.sprite.Group()
+
+    def update(self):
+        nearby_goblins = pygame.sprite.Group()
+        self.entity_list[goblin.Goblin] = pygame.sprite.Group()
+        # print(self.entity_list[goblin.Goblin])
+        for each in self.neighbors:
+            # print(each)
+            # print(each.left, each.top)
+            nearby_goblins.add(each.entity_list[goblin.Goblin])
+            self.entity_list[goblin.Goblin].add(nearby_goblins)
+        # print(self.entity_list[goblin.Goblin])

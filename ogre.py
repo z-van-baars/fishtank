@@ -63,16 +63,17 @@ class Ogre(organism.Organism):
                 home_x = self.home_hut.rect.x + 20
                 home_y = self.home_hut.rect.y + 15
                 home_dist = utilities.distance(home_x, home_y, self.rect.x + 10, self.rect.y + 10)
-                if home_dist < 175:
-                    if self.current_chunk.entity_list[goblin.Goblin]:
-                        if self.target_goblin is None or self.target_goblin not in self.current_room.entity_list[goblin.Goblin]:
+                if home_dist < 200:
+                    if self.home_hut.entity_list[goblin.Goblin]:
+                        # self.idle()
+                        if self.target_goblin is None or self.target_goblin not in self.home_hut.entity_list[goblin.Goblin]:
                             if home_dist < 80:
-                                self.target_goblin = self.pick_target_local()
+                                self.target_goblin = self.pick_target(self.home_hut.neighbors, None)
                         else:
                             self.chase(self.current_room)
                     else:
                         self.idle()
-                if home_dist >= 175:
+                if home_dist >= 200:
                     self.idle()
                     self.target_goblin = None
             else:

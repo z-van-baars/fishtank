@@ -106,6 +106,8 @@ class Room1(Room):
         for each in self.entity_list[pit.Pit]:
             if each.coins > 15:
                 each.spawn_goblin()
+        for each in self.entity_list[hut.Hut]:
+            each.update()
 
     def spawn_coins(self, num_coins):
         for each in range(num_coins):

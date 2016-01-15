@@ -4,7 +4,7 @@ import pygame
 import colors
 import entity
 import utilities
-import coin
+
 
 class Organism(entity.Entity):
 
@@ -48,7 +48,7 @@ class Organism(entity.Entity):
             self.place_in_chunk(current_room)
 
     def pick_target(self, neighbors, backup_list):
-        nearby_targets = self.current_chunk.entity_list[self.food_type]
+        nearby_targets = pygame.sprite.Group()
         for chunk in neighbors:
             for target in chunk.entity_list[self.food_type]:
                 nearby_targets.add(target)
