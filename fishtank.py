@@ -128,7 +128,7 @@ def main():
         screen.blit(ogre_meals_counter, [550, 1])
         screen.blit(current_item_to_place_stamp, [350, 1])
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
         time += 1
 
     if current_room.death_ages:

@@ -32,9 +32,12 @@ class Ogre(organism.Organism):
         self.food_type = goblin.Goblin
         self.home_hut = None
         self.frame = 0
+        self.killing = 'No'
 
         self.walking_frames_r = []
         self.walking_frames_l = []
+        self.kill_frames_r = []
+        self.kill_frames_l = []
 
         sprite_sheet = Spritesheet("art/ogre_spritesheet.png")
         # Load all the right facing images into a list
@@ -77,6 +80,34 @@ class Ogre(organism.Organism):
         self.walking_frames_l.append(image)
         self.walking_frames_l.append(image)
 
+        image = sprite_sheet.get_image(21, 42, 20, 20)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+
+        image = sprite_sheet.get_image(42, 42, 20, 20)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+        self.kill_frames_r.append(image)
+
+        image = sprite_sheet.get_image(21, 42, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+
+        image = sprite_sheet.get_image(42, 42, 20, 20)
+        image = pygame.transform.flip(image, True, False)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+        self.kill_frames_l.append(image)
+
         self.face = 'R'
         self.image = self.walking_frames_r[self.frame]
 
@@ -95,6 +126,44 @@ class Ogre(organism.Organism):
             self.current_room.ogre_death_ages.append(self.age)
             self.expire()
             return True
+
+    def get_frame(self):
+
+        if self.killing == 'Yes':
+            if self.killframe < 7:
+                if self.face == 'R':
+                    self.image = self.kill_frames_r[self.killframe]
+                else:
+                    self.image = self.kill_frames_l[self.killframe]
+                self.killframe += 1
+            else:
+                self.killframe = 0
+                self.killing = 'No'
+                self.frame = 0
+                self.image = self.walking_frames_r[self.frame]
+        elif self.killing == 'No':
+            if self.change_x == 0 and self.change_y == 0:
+                self.frame = 0
+                if self.face == 'R':
+                    self.image = self.walking_frames_r[self.frame]
+                elif self.face == 'L':
+                    self.image = self.walking_frames_l[self.frame]
+
+            elif self.change_x >= 0:
+                self.face = 'R'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_r[self.frame]
+
+            elif self.change_x < 0:
+                self.face = 'L'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_r[self.frame]
 
     def do_thing(self):
         if not self.home_hut:
@@ -129,27 +198,7 @@ class Ogre(organism.Organism):
                     self.chase(self.current_room)
                 else:
                     self.idle()
-
-            if self.change_x == 0 and self.change_y == 0:
-                self.frame = 0
-                if self.face == 'R':
-                    self.image = self.walking_frames_r[self.frame]
-                else:
-                    self.image = self.walking_frames_l[self.frame]
-            elif self.change_x >= 0:
-                self.face = 'R'
-                if self.frame == 11:
-                    self.frame = 0
-                else:
-                    self.frame += 1
-                self.image = self.walking_frames_r[self.frame]
-            elif self.change_x < 0:
-                self.face = 'L'
-                if self.frame == 11:
-                    self.frame = 0
-                else:
-                    self.frame += 1
-                self.image = self.walking_frames_l[self.frame]
+            self.get_frame()
 
             self.move(self.current_room, self.current_chunk)
             if self.goblins_eaten > 39:
@@ -253,6 +302,8 @@ class Ogre(organism.Organism):
             current_room.coins_on_death.append(each.lifetime_coins)
             current_room.death_ages.append(each.age)
             each.expire()
+            self.killing = 'Yes'
+            self.killframe = 0
 
     def reproduce(self, current_room):
         self.goblins_eaten = 0

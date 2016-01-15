@@ -2,6 +2,7 @@ import pygame
 import utilities
 import random
 import colors
+from spritesheet import Spritesheet
 import organism
 import ogre
 import coin
@@ -15,7 +16,7 @@ screen_width = 800
 screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
 
-goblin_img = pygame.image.load("art/goblin.png").convert()
+goblin_img = pygame.image.load("art/goblin_2.png").convert()
 goblin_img.set_colorkey(colors.key)
 
 
@@ -24,7 +25,6 @@ class Goblin(organism.Organism):
 
     def __init__(self, x, y, current_room):
         super().__init__((x - 7), (y - 7), current_room, colors.green, 15, 15)
-        self.image = goblin_img
         self.speed = 2
         self.coins_collected = 0
         self.lifetime_coins = 0
@@ -37,6 +37,91 @@ class Goblin(organism.Organism):
         self.ticks_without_food = 0
         self.food_type = coin.Coin
         self.pit = None
+
+        self.frame = 0
+
+        self.walking_frames_r = []
+        self.walking_frames_l = []
+        self.walking_frames_d = []
+        self.walking_frames_u = []
+
+        sprite_sheet = Spritesheet("art/goblin_spritesheet.png")
+        # Load all the right facing images into a list
+
+        image = sprite_sheet.get_image(0, 0, 15, 15)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        image = sprite_sheet.get_image(16, 0, 15, 15)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        image = sprite_sheet.get_image(0, 0, 15, 15)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        image = sprite_sheet.get_image(32, 0, 15, 15)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+        self.walking_frames_d.append(image)
+
+        image = sprite_sheet.get_image(0, 16, 15, 15)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        image = sprite_sheet.get_image(16, 16, 15, 15)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        image = sprite_sheet.get_image(0, 16, 15, 15)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        image = sprite_sheet.get_image(32, 16, 15, 15)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+        self.walking_frames_u.append(image)
+
+        image = sprite_sheet.get_image(0, 32, 15, 15)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        image = sprite_sheet.get_image(16, 32, 15, 15)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        image = sprite_sheet.get_image(0, 32, 15, 15)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        image = sprite_sheet.get_image(32, 32, 15, 15)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+        self.walking_frames_r.append(image)
+
+        image = sprite_sheet.get_image(0, 32, 15, 15)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(16, 32, 15, 15)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(0, 32, 15, 15)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        image = sprite_sheet.get_image(32, 32, 15, 15)
+        image = pygame.transform.flip(image, True, False)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+        self.walking_frames_l.append(image)
+
+        self.face = 'R'
+        self.image = self.walking_frames_d[self.frame]
 
     def safety(self, current_room):
         center_x = self.rect.x + 7
@@ -144,6 +229,37 @@ class Goblin(organism.Organism):
                 else:
                     self.idle()
             self.safety(self.current_room)
+            if self.change_x == 0 and self.change_y == 0:
+                self.frame = 0
+                if self.face == 'D':
+                    self.image = self.walking_frames_d[self.frame]
+                elif self.face == 'U':
+                    self.image = self.walking_frames_u[self.frame]
+                elif self.face == 'R':
+                    self.image = self.walking_frames_r[self.frame]
+                elif self.face == 'L':
+                    self.image = self.walking_frames_l[self.frame]
+            elif self.change_x >= 0 and self.change_y >= 0:
+                self.face = 'R'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_r[self.frame]
+            elif self.change_x < 0 and self.change_y >= 0:
+                self.face = 'L'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_l[self.frame]
+            elif self.change_y < 0:
+                self.face = 'U'
+                if self.frame == 11:
+                    self.frame = 0
+                else:
+                    self.frame += 1
+                self.image = self.walking_frames_u[self.frame]
             self.move(self.current_room, self.current_chunk)
 
     def collide_x(self, current_room, current_chunk):
