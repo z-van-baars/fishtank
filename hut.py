@@ -11,7 +11,7 @@ pygame.display.set_caption("There's always a bigger fish")
 screen_width = 800
 screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
-hut_img = pygame.image.load("art/hut.png")
+hut_img = pygame.image.load("art/hut2.png")
 hut_img.set_colorkey(colors.key)
 
 
