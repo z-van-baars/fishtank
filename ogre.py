@@ -12,7 +12,7 @@ pygame.display.set_caption("There's always a bigger fish")
 screen_width = 800
 screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
-ogre_img = pygame.image.load("art/ogre.png")
+ogre_img = pygame.image.load("art/ogre2.png")
 ogre_img.set_colorkey(colors.key)
 
 
@@ -65,7 +65,6 @@ class Ogre(organism.Organism):
                 home_dist = utilities.distance(home_x, home_y, self.rect.x + 10, self.rect.y + 10)
                 if home_dist < 200:
                     if self.home_hut.entity_list[goblin.Goblin]:
-                        # self.idle()
                         if self.target_goblin is None or self.target_goblin not in self.home_hut.entity_list[goblin.Goblin]:
                             if home_dist < 80:
                                 self.target_goblin = self.pick_target(self.home_hut.neighbors, None)
